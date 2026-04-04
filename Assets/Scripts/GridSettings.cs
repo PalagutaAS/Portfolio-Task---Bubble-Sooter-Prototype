@@ -3,7 +3,10 @@
 /// <summary>
 /// Конфигурация сетки. Может быть прикреплена к тому же объекту, что и GridGenerator.
 /// </summary>
-public class GridSettings : MonoBehaviour
+
+[CreateAssetMenu(fileName = "Grid Setting", menuName = "Game Tools/Settings", order = 0)]
+
+public class GridSettings : ScriptableObject
 {
     [Header("Размеры сетки")]
     public int rows = 5;
@@ -19,8 +22,5 @@ public class GridSettings : MonoBehaviour
     public float verticalOverlap = 0.2f;
 
     [Header("Префаб")]
-    public GameObject cellPrefab; 
-
-    [Header("Родительский объект (опционально)")]
-    public Transform parentTransform;
+    public Bubble cellPrefab;
 }

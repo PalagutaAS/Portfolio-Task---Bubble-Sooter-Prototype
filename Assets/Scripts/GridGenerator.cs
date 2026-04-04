@@ -1,23 +1,28 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Linq;
+using UnityEngine;
 
-public class GridGenerator : MonoBehaviour
+public class GridGenerator
 {
-    [SerializeField] private GridSettings settings;
+    private readonly GridSettings _settings;
+    private readonly BubbleFactory _bubbleFactory;
+    private readonly Transform _parent;
+    private readonly IBubbleGridStorage _storage;
+    private readonly PositionCalculator _positionsCalc;
 
-    // Словарь: позиция (Vector2) -> созданный объект
-    private Dictionary<Vector2, Bubble> cellMap = new Dictionary<Vector2, Bubble>();
     private Vector2?[,] _positions;
 
-    private void Start()
+    public GridGenerator(GridSettings gridSettings, BubbleFactory bubbleFactory, PositionCalculator positionCalculator, Transform parent, IBubbleGridStorage storage)
     {
-        GenerateGrid();
+        _settings = gridSettings;
+        _bubbleFactory = bubbleFactory;
+        _parent = parent;
+        _positionsCalc = positionCalculator;
+        _storage = storage;
     }
 
-    [ContextMenu("Generate Grid")]
     public void GenerateGrid()
     {
-        if (settings == null || settings.cellPrefab == null)
+        if (_settings == null || _settings.cellPrefab == null)
         {
             Debug.LogError("Настройки или префаб не назначены!");
             return;
@@ -25,51 +30,34 @@ public class GridGenerator : MonoBehaviour
 
         ClearGrid();
 
-        _positions = PositionCalculator.CalculatePositionArray(
-            settings.rows,
-            settings.columns,
-            settings.cellSize,
-            settings.offsetX,
-            settings.verticalOverlap
-        );
+        _storage.SetPositionsArray(_positionsCalc.Positions);
 
-        Transform parent = settings.parentTransform != null ? settings.parentTransform : transform;
-
-        for (int row = 0; row < settings.rows; row++)
+        for (int row = 0; row < _settings.rows; row++)
         {
-            for (int col = 0; col < settings.columns; col++)
+            for (int col = 0; col < _settings.columns; col++)
             {
-                Vector2? posNullable = _positions[row, col];
+                Vector2? posNullable = _positionsCalc.Positions[row, col];
                 if (posNullable.HasValue)
                 {
                     Vector2 pos = posNullable.Value;
-                    Bubble cell = Instantiate(settings.cellPrefab, parent).GetComponent<Bubble>();
-                    cell.transform.localPosition = posNullable.Value;
-                    cellMap[pos] = cell;
+                    Bubble bubble = _bubbleFactory.CreateRandomBubble(_settings.cellPrefab, pos, _parent);
+                    Vector2Int indexes = new Vector2Int(row, col);
+                    _storage.AddBubble(indexes, bubble);
                 }
             }
         }
 
-        Debug.Log($"Сгенерировано {cellMap.Count} ячеек.");
+        Debug.Log($"Сгенерировано {_storage.GetAllBubbles().Count()} ячеек.");
     }
 
-    [ContextMenu("Clear Grid")]
-    public void ClearGrid()
+    private void ClearGrid()
     {
-        foreach (var cell in cellMap.Values)
+        foreach (var bubble in _storage.GetAllBubbles())
         {
-            if (cell != null)
-                DestroyImmediate(cell);
+            if (bubble != null)
+                Object.Destroy(bubble.gameObject);
         }
-        cellMap.Clear();
+        _storage.Clear();
     }
 
-    /// <summary>
-    /// Получить объект ячейки по её позиции (центру).
-    /// </summary>
-    public Bubble GetCellAtPosition(Vector2 position)
-    {
-        cellMap.TryGetValue(position, out Bubble cell);
-        return cell;
-    }
 }

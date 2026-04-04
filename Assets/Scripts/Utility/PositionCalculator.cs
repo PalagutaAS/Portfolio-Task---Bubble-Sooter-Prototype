@@ -1,13 +1,28 @@
 using UnityEngine;
 
-public static class PositionCalculator
+public class PositionCalculator
 {
+    private GridSettings _settings;
+
+    public Vector2?[,] Positions { get; private set; }
+
+    public PositionCalculator(GridSettings settings)
+    {
+        _settings = settings;
+        Positions = CalculatePositionArray(
+            _settings.rows,
+            _settings.columns,
+            _settings.cellSize,
+            _settings.offsetX,
+            _settings.verticalOverlap);
+    }
+
     /// <summary>
     /// Создаёт двумерный массив позиций ячеек (сверху вниз, слева направо).
     /// Верхний ряд (row = 0) имеет Y = 0 (локально, центр ячейки).
     /// Для чётных рядов (row % 2 == 1) последняя ячейка отсутствует (null).
     /// </summary>
-    public static Vector2?[,] CalculatePositionArray(int rows, int columns, float cellSize, float offsetX, float verticalOverlap)
+    private Vector2?[,] CalculatePositionArray(int rows, int columns, float cellSize, float offsetX, float verticalOverlap)
     {
         Vector2?[,] grid = new Vector2?[rows, columns];
 
