@@ -22,16 +22,14 @@ public class GridGenerator
 
     public void GenerateGrid()
     {
-        if (_settings == null || _settings.cellPrefab == null)
+        if (_settings == null )
         {
-            Debug.LogError("Настройки или префаб не назначены!");
+            Debug.LogError("Настройкиy не назначены!");
             return;
         }
 
         ClearGrid();
-
-        _storage.SetPositionsArray(_positionsCalc.Positions);
-
+        
         for (int row = 0; row < _settings.rows; row++)
         {
             for (int col = 0; col < _settings.columns; col++)

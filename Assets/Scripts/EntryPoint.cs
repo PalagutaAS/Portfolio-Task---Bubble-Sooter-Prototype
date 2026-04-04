@@ -20,14 +20,14 @@ public class EntryPoint : MonoBehaviour
     private void CreateAssets()
     {
         _bubbleFactory = new BubbleFactory();
-        _bubbleStorage = new BubbleGridStorage();
         _positionsCalculator = new PositionCalculator(_gridSettings);
-        
+        _bubbleStorage = new BubbleGridStorage(_positionsCalculator);
+
 
         _generator = new GridGenerator(_gridSettings, _bubbleFactory, _positionsCalculator, _gridTransform, _bubbleStorage);
         _neighborFinder = new HexNeighborFinder(_gridSettings.rows, _gridSettings.columns, _bubbleStorage);
         _matchFinder = new BubbleMatchFinder(_bubbleStorage, _neighborFinder);
-        
+
         BubbleDebugger bubbleDebugger = new GameObject("BUBBLE DEBUGGER").AddComponent<BubbleDebugger>();
         bubbleDebugger.Constructor(_bubbleStorage, _neighborFinder, _matchFinder);
     }

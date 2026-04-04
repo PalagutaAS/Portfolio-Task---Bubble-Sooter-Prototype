@@ -8,6 +8,11 @@ public class BubbleGridStorage : IBubbleGridStorage
     private readonly Dictionary<Bubble, Vector2Int> _bubbleToIndexes = new ();
     private Vector2?[,] _positionsArray;
 
+    public BubbleGridStorage(PositionCalculator positionsCalculator)
+    {
+        _positionsArray = positionsCalculator.Positions;
+    }
+
     public void AddBubble(Vector2Int indexesOnGrid, Bubble bubble)
     {
         if (bubble == null) return;
@@ -68,11 +73,6 @@ public class BubbleGridStorage : IBubbleGridStorage
         return _bubbleToIndexes.TryGetValue(bubble, out indexes);
     }
 
-    public void SetPositionsArray(Vector2?[,] positions)
-    {
-        _positionsArray = positions;
-    }
-
     public IEnumerable<Bubble> GetAllBubbles()
     {
         return _bubbleToIndexes.Keys.ToList();
@@ -91,11 +91,6 @@ public interface IBubbleGridStorage
     bool TryGetPosition(Bubble bubble, out Vector2 position);
     bool TryGetIndices(Bubble bubble, out Vector2Int position);
 
-
-    /// <summary>
-    /// Установить массив позиций сетки (необходим для метода TryGetIndices).
-    /// </summary>
-    void SetPositionsArray(Vector2?[,] positions);
 
     /// <summary>
     /// Получить все пузыри (опционально).
