@@ -2,6 +2,13 @@
 
 public class BubbleFactory
 {
+    private readonly Bubble _prefabBubble;
+
+    public BubbleFactory(Bubble prefabBubble)
+    {
+        _prefabBubble = prefabBubble;
+    }
+
     /// <summary>
     /// Создаёт пузырь указанного цвета в заданной позиции и родителе.
     /// </summary>
@@ -10,9 +17,9 @@ public class BubbleFactory
     /// <param name="parent">Родительский трансформ.</param>
     /// <param name="color">Цвет пузыря.</param>
     /// <returns>Компонент Bubble созданного объекта.</returns>
-    public Bubble CreateBubble(Bubble prefab, Vector2 position, Transform parent, BubbleColor color)
+    public Bubble CreateBubble(Vector2 position, Transform parent, BubbleColor color)
     {
-        Bubble bubble = Object.Instantiate(prefab, parent);
+        Bubble bubble = Object.Instantiate(_prefabBubble, parent);
         bubble.transform.localPosition = position;
 
         bubble.SetColor(color);
@@ -26,11 +33,11 @@ public class BubbleFactory
     /// <param name="position">Локальная позиция.</param>
     /// <param name="parent">Родительский трансформ.</param>
     /// <returns>Компонент Bubble созданного объекта.</returns>
-    public Bubble CreateRandomBubble(Bubble prefab, Vector2 position, Transform parent)
+    public Bubble CreateRandomBubble(Vector2 position, Transform parent)
     {
         BubbleColor[] colors = (BubbleColor[])System.Enum.GetValues(typeof(BubbleColor));
         
-        Bubble bubble = Object.Instantiate(prefab, parent);
+        Bubble bubble = Object.Instantiate(_prefabBubble, parent);
         bubble.transform.localPosition = position;
 
         bubble.SetColor(colors[Random.Range(0, colors.Length)]);

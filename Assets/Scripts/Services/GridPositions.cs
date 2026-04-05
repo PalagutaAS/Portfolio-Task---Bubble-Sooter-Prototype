@@ -1,12 +1,12 @@
 using UnityEngine;
 
-public class PositionCalculator
+public class GridPositions
 {
     private GridSettings _settings;
 
     public Vector2?[,] Positions { get; private set; }
 
-    public PositionCalculator(GridSettings settings)
+    public GridPositions(GridSettings settings)
     {
         _settings = settings;
         Positions = CalculatePositionArray(
@@ -50,5 +50,18 @@ public class PositionCalculator
         }
 
         return grid;
+    }
+
+    public Vector2? GetPosition(int row, int col)
+    {
+        try
+        {
+            return Positions[row, col];
+        }
+        catch (System.IndexOutOfRangeException)
+        {
+            Debug.LogError($"Запрошен недопустимый индекс: row={row}, col={col}");
+            return null;
+        }
     }
 }

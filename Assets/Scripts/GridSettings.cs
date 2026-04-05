@@ -22,5 +22,5 @@ public class GridSettings : ScriptableObject
     public float verticalOverlap = 0.2f;
 
     [Header("Префаб")]
-    public Bubble cellPrefab;
+    public Bubble Prefab;
 }

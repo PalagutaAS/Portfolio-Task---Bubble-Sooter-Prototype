@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a94c0af27214c809f9a4343d3edcd8f, type: 3}
   m_Name: Grid Setting
   m_EditorClassIdentifier: 
-  rows: 12
+  rows: 20
   columns: 12
   cellSize: 0.4
   offsetX: 0.2
   verticalOverlap: 0.05
-  cellPrefab: {fileID: 5930125689623225724, guid: 9b70f64c12e936f4a84b4c65ff77fb07, type: 3}
+  Prefab: {fileID: 5930125689623225724, guid: 9b70f64c12e936f4a84b4c65ff77fb07, type: 3}

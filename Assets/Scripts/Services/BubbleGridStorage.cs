@@ -6,11 +6,11 @@ public class BubbleGridStorage : IBubbleGridStorage
 {
     private readonly Dictionary<Vector2Int, Bubble> _positionToBubble = new ();
     private readonly Dictionary<Bubble, Vector2Int> _bubbleToIndexes = new ();
-    private Vector2?[,] _positionsArray;
+    private GridPositions _gridPositions;
 
-    public BubbleGridStorage(PositionCalculator positionsCalculator)
+    public BubbleGridStorage(GridPositions gridPositions)
     {
-        _positionsArray = positionsCalculator.Positions;
+        _gridPositions = gridPositions;
     }
 
     public void AddBubble(Vector2Int indexesOnGrid, Bubble bubble)
@@ -49,15 +49,15 @@ public class BubbleGridStorage : IBubbleGridStorage
             position = default;
             return false;
         }
-        
-        if (indexes.x < 0 || indexes.x >= _positionsArray.GetLength(0) ||
-            indexes.y < 0 || indexes.y >= _positionsArray.GetLength(1))
+
+
+        if (indexes.x < 0 || indexes.x >= _gridPositions.Positions.GetLength(0)) 
         {
             position = default;
             return false;
         }
-        
-        Vector2? foundPos = _positionsArray[indexes.x, indexes.y];
+
+        Vector2? foundPos = _gridPositions.GetPosition(indexes.x, indexes.y);
         if (foundPos == null)
         {
             position = default;
