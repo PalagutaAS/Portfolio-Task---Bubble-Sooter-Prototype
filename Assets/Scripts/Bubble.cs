@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using static UnityEngine.Color;
 
 public class Bubble : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer _sprite;
 
+    public event Action<Bubble, Bubble> OnCollisionBubbles;
     public BubbleColor Color { get; private set; }
 
     private void Awake()
@@ -13,6 +15,14 @@ public class Bubble : MonoBehaviour
             return;
     }
 
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.TryGetComponent(out Bubble bubble) && TryGetComponent(out BubbleProjectile _bubbleProjectile) && _bubbleProjectile.IsLaunch)
+        {
+            OnCollisionBubbles?.Invoke(this, bubble);
+        }
+    }
+    
     public void SetColor(BubbleColor color)
     {
         Color newColor = color switch

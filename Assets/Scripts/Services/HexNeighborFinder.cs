@@ -138,6 +138,25 @@ public class HexNeighborFinder : IBubbleNeighborFinder
     {
         return (row % 2 == 0) ? _columns : _columns - 1;
     }
+
+    public List<Vector2Int> GetEmptyCellNeighbors(Bubble bubble)
+    {
+        List<Vector2Int> emptyCells = new List<Vector2Int>();
+        
+        if (_storage.TryGetIndices(bubble, out Vector2Int idx))
+        {
+            List<Vector2Int> potential = GetPotentialNeighborIndices(idx);
+            foreach (var cell in potential)
+            {
+                if (_storage.TryGetBubble(cell, out _))
+                    continue;
+
+                emptyCells.Add(cell);
+            }
+        }
+
+        return emptyCells;
+    }
 }
 
 public interface IBubbleNeighborFinder
@@ -153,4 +172,6 @@ public interface IBubbleNeighborFinder
     /// Проверяет, связан ли пузырёк с заданными индексами с верхним рядом (row = 0) через соседние пузыри.
     /// </summary>
     bool IsConnectedToTopRow(Vector2Int startIndices);
+
+    List<Vector2Int> GetEmptyCellNeighbors(Bubble bubble);
 }

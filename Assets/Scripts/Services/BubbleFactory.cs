@@ -1,26 +1,37 @@
 ﻿using UnityEngine;
 
-public class BubbleFactory
+public interface IBubbleFactoryRandom
+{
+    Bubble CreateBubble(Vector2 position);
+}
+public interface IBubbleFactory
+{
+    Bubble CreateBubble(Vector2 position, BubbleColor color);
+}
+
+public class BubbleFactory : IBubbleFactoryRandom, IBubbleFactory
 {
     private readonly Bubble _prefabBubble;
+    private readonly StickyBubbleService _stickyBubbleService;
+    private readonly Transform _parentForBubbles;
 
-    public BubbleFactory(Bubble prefabBubble)
+    public BubbleFactory(Bubble prefabBubble, StickyBubbleService stickyBubbleService, Transform parentForBubbles)
     {
         _prefabBubble = prefabBubble;
+        _stickyBubbleService = stickyBubbleService;
+        _parentForBubbles = parentForBubbles;
     }
 
     /// <summary>
     /// Создаёт пузырь указанного цвета в заданной позиции и родителе.
     /// </summary>
-    /// <param name="prefab">Префаб с компонентом Bubble.</param>
-    /// <param name="position">Локальная позиция.</param>
-    /// <param name="parent">Родительский трансформ.</param>
+    /// <param name="position">World позиция.</param>
     /// <param name="color">Цвет пузыря.</param>
     /// <returns>Компонент Bubble созданного объекта.</returns>
-    public Bubble CreateBubble(Vector2 position, Transform parent, BubbleColor color)
+    public Bubble CreateBubble(Vector2 position, BubbleColor color)
     {
-        Bubble bubble = Object.Instantiate(_prefabBubble, parent);
-        bubble.transform.localPosition = position;
+        Bubble bubble = Object.Instantiate(_prefabBubble, _parentForBubbles);
+        bubble.transform.position = position;
 
         bubble.SetColor(color);
         return bubble;
@@ -29,16 +40,15 @@ public class BubbleFactory
     /// <summary>
     /// Создаёт пузырь случайного цвета в заданной позиции и родителе.
     /// </summary>
-    /// <param name="prefab">Префаб с компонентом Bubble.</param>
-    /// <param name="position">Локальная позиция.</param>
-    /// <param name="parent">Родительский трансформ.</param>
+    /// <param name="position">World позиция.</param>
     /// <returns>Компонент Bubble созданного объекта.</returns>
-    public Bubble CreateRandomBubble(Vector2 position, Transform parent)
+    public Bubble CreateBubble(Vector2 position)
     {
         BubbleColor[] colors = (BubbleColor[])System.Enum.GetValues(typeof(BubbleColor));
         
-        Bubble bubble = Object.Instantiate(_prefabBubble, parent);
-        bubble.transform.localPosition = position;
+        Bubble bubble = Object.Instantiate(_prefabBubble, _parentForBubbles);
+        bubble.transform.position = position;
+        bubble.OnCollisionBubbles += _stickyBubbleService.OnCollisionBubbles;
 
         bubble.SetColor(colors[Random.Range(0, colors.Length)]);
         return bubble;

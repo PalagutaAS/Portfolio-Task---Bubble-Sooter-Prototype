@@ -1,19 +1,20 @@
 ﻿using UnityEngine;
 
-/// <summary>
-/// Управляет стрельбой пузырями по нажатию мыши.
-/// </summary>
 public class BubbleShooter : MonoBehaviour
 {
     [Header("Ссылки")]
     [SerializeField] private BubbleLauncher _bubbleLauncher;
-    [SerializeField] private Camera _mainCamera;      // камера для преобразования координат мыши
+    [SerializeField] private Camera _mainCamera;
 
-    [Header("Настройки выстрела (захардкожены)")]
-    private float _shootSpeed = 15f;       // скорость выстрела
-    private float _gravity = 20f;           // гравитация для пузыря
+    [Header("Настройки натягивания")]
+    [SerializeField] private float _maxDragRadius = 3f;
+    [SerializeField] private float _minSpeed = 5f;
+    [SerializeField] private float _maxSpeed = 20f;
+    [SerializeField] private float _gravity = 20f;
 
-    private Transform _firePoint;
+    private bool _isDragging;
+    private Vector3 _firePointPos;
+    private Vector3 _dragCurrentPos;
 
     private void Awake()
     {
@@ -22,58 +23,82 @@ public class BubbleShooter : MonoBehaviour
         
         if (_mainCamera == null)
             _mainCamera = Camera.main;
-
-
-        _firePoint = _bubbleLauncher.FirePoint;
     }
 
     private void Update()
     {
-        // Стреляем по левой кнопке мыши
-        if (Input.GetMouseButtonDown(0))
+        if (_bubbleLauncher.CurrentBubble == null) 
+            return;
+        
+        if (Input.GetMouseButtonDown(0) && !_isDragging)
         {
-            ShootAtMouseCursor();
+            StartDrag();
+        } 
+        else if (Input.GetMouseButton(0) && _isDragging)
+        {
+            UpdateDrag();
+        }
+        else if (Input.GetMouseButtonUp(0) && _isDragging)
+        {
+            ShootFromDrag();
         }
     }
 
-    private void ShootAtMouseCursor()
+
+    private void StartDrag()
     {
-        if (_bubbleLauncher == null)
+        _isDragging = true;
+        _firePointPos = _bubbleLauncher.FirePoint.position;
+        _bubbleLauncher.CurrentBubble.transform.position = _firePointPos;
+        UpdateDrag();
+    }
+
+
+    private void UpdateDrag()
+    {
+        Vector3 mouseWorldPos = GetMouseWorldPosition();
+        Vector3 directionToMouse = mouseWorldPos - _firePointPos;
+        float distance = directionToMouse.magnitude;
+
+        if (distance > _maxDragRadius)
         {
-            Debug.LogError("BubbleShooter: нет ссылки на BubbleLauncher!");
-            return;
+            directionToMouse = directionToMouse.normalized * _maxDragRadius;
         }
 
-        // Получаем пузырь от лаунчера
+        _dragCurrentPos = _firePointPos + directionToMouse;
+
+        _bubbleLauncher.CurrentBubble.transform.position = _dragCurrentPos;
+    }
+
+
+    private void ShootFromDrag()
+    {
+        Vector3 direction = (_firePointPos - _dragCurrentPos).normalized;
+    
+        float dragDistance = (_dragCurrentPos - _firePointPos).magnitude;
+    
+        float t = Mathf.Clamp01(dragDistance / _maxDragRadius);
+        float shootSpeed = Mathf.Lerp(_minSpeed, _maxSpeed, t);
+    
         Bubble bubble = _bubbleLauncher.Shoot();
         if (bubble == null)
         {
-            // Выстрелов больше нет или нет текущего пузыря
-            Debug.Log("Невозможно выстрелить: лимит исчерпан или пузырь отсутствует.");
+            Debug.LogWarning("Не удалось выстрелить – нет доступных выстрелов.");
+            _isDragging = false;
             return;
         }
 
-        // Определяем направление от точки выстрела к курсору мыши
-        Vector3 mouseWorldPos = GetMouseWorldPosition();
-        Vector3 direction = (mouseWorldPos - _firePoint.position).normalized;
-
-        // Добавляем компонент полёта к пузырю и запускаем
-        BubbleProjectile projectile = bubble.gameObject.GetComponent<BubbleProjectile>();
-        if (projectile == null)
-            projectile = bubble.gameObject.AddComponent<BubbleProjectile>();
-        
-        projectile.Launch(direction, _shootSpeed, _gravity);
-
-        // Убедимся, что пузырь находится в точке выстрела (на всякий случай)
-        bubble.transform.position = _firePoint.position;
+        bubble.gameObject.AddComponent<BubbleProjectile>()
+            .Launch(direction, shootSpeed, _gravity);
+    
+        _isDragging = false;
     }
+
 
     private Vector3 GetMouseWorldPosition()
     {
-        // Получаем координаты мыши на экране
         Vector3 mouseScreen = Input.mousePosition;
-        // Задаём глубину на расстоянии камеры (обычно 10-20 единиц от камеры)
-        mouseScreen.z = Mathf.Abs(_mainCamera.transform.position.z); 
+        mouseScreen.z = Mathf.Abs(_mainCamera.transform.position.z);
         return _mainCamera.ScreenToWorldPoint(mouseScreen);
     }
 }

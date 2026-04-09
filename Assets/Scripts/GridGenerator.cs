@@ -4,19 +4,17 @@ using UnityEngine;
 public class GridGenerator
 {
     private readonly GridSettings _settings;
-    private readonly BubbleFactory _bubbleFactory;
-    private readonly Transform _parent;
+    private readonly IBubbleFactoryRandom _bubbleFactory;
     private readonly IBubbleGridStorage _storage;
-    private readonly GridPositions _gridPositions;
+    private readonly IGridPositionService _gridPositions;
     
     public int Rows => _settings.rows;
     public int Columns => _settings.columns;
 
-    public GridGenerator(GridSettings gridSettings, BubbleFactory bubbleFactory, GridPositions gridPositionCalculator, Transform parent, IBubbleGridStorage storage)
+    public GridGenerator(GridSettings gridSettings, IBubbleFactoryRandom bubbleFactory, IGridPositionService gridPositionCalculator, IBubbleGridStorage storage)
     {
         _settings = gridSettings;
         _bubbleFactory = bubbleFactory;
-        _parent = parent;
         _gridPositions = gridPositionCalculator;
         _storage = storage;
     }
@@ -35,13 +33,12 @@ public class GridGenerator
         {
             for (int col = 0; col < _settings.columns; col++)
             {
-                Vector2? posNullable = _gridPositions.Positions[row, col];
-                if (posNullable.HasValue)
+                Vector2 pos = _gridPositions.GetPosition(row, col);
+                if (pos != Vector2.zero)
                 {
-                    Vector2 pos = posNullable.Value;
                     if (row < 10)
                     {
-                        Bubble bubble = _bubbleFactory.CreateRandomBubble(pos, _parent);
+                        Bubble bubble = _bubbleFactory.CreateBubble(pos);
                         Vector2Int indexes = new Vector2Int(row, col);
                         _storage.AddBubble(indexes, bubble);
                     }

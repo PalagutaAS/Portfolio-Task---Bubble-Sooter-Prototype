@@ -1,15 +1,23 @@
 using UnityEngine;
 
-public class GridPositions
+public interface IGridPositionService
+{
+    Vector2 GetPosition(int row, int col);
+    int GetLength(int dimension = 0);
+}
+
+public class GridPositions : IGridPositionService
 {
     private GridSettings _settings;
+    private Transform _parent;
 
-    public Vector2?[,] Positions { get; private set; }
+    private Vector2[,] _positions;
 
-    public GridPositions(GridSettings settings)
+    public GridPositions(GridSettings settings, Transform parent)
     {
         _settings = settings;
-        Positions = CalculatePositionArray(
+        _parent = parent;
+        _positions = CalculatePositionArray(
             _settings.rows,
             _settings.columns,
             _settings.cellSize,
@@ -22,9 +30,9 @@ public class GridPositions
     /// Верхний ряд (row = 0) имеет Y = 0 (локально, центр ячейки).
     /// Для чётных рядов (row % 2 == 1) последняя ячейка отсутствует (null).
     /// </summary>
-    private Vector2?[,] CalculatePositionArray(int rows, int columns, float cellSize, float offsetX, float verticalOverlap)
+    private Vector2[,] CalculatePositionArray(int rows, int columns, float cellSize, float offsetX, float verticalOverlap)
     {
-        Vector2?[,] grid = new Vector2?[rows, columns];
+        Vector2[,] grid = new Vector2[rows, columns];
 
         float verticalStep = cellSize - verticalOverlap;
 
@@ -45,23 +53,28 @@ public class GridPositions
             {
                 float xPos = xOffset + cellSize / 2f + col * cellSize;
                 Vector2 pos = new Vector2(xPos + shiftX, yPos);
-                grid[row, col] = pos;
+                grid[row, col] = _parent.TransformPoint(pos);
             }
         }
 
         return grid;
     }
 
-    public Vector2? GetPosition(int row, int col)
+    public Vector2 GetPosition(int row, int col)
     {
         try
         {
-            return Positions[row, col];
+            return _positions[row, col];
         }
         catch (System.IndexOutOfRangeException)
         {
             Debug.LogError($"Запрошен недопустимый индекс: row={row}, col={col}");
-            return null;
+            return Vector2.zero;
         }
+    }
+
+    public int GetLength(int dimension = 0)
+    {
+        return _positions.GetLength(dimension);
     }
 }

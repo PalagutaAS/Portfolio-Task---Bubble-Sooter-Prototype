@@ -216,7 +216,7 @@ MonoBehaviour:
   settings: {fileID: 11400000, guid: ff7d8c71cd7106f488dee3606ba97d7d, type: 2}
   drawCells: 1
   drawRowColors: 1
-  drawBounds: 1
+  drawBounds: 0
   drawRowNumbers: 1
   drawOnlySelected: 1
   cellSizeMultiplier: 0.8
@@ -447,7 +447,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 994116857}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -4, z: 0}
+  m_LocalPosition: {x: 0, y: -3.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -464,8 +464,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1132939788}
   - component: {fileID: 1132939789}
+  - component: {fileID: 1132939790}
   m_Layer: 0
-  m_Name: Bubble Launcher
+  m_Name: Bubble Shooter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -502,6 +503,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _firePoint: {fileID: 994116858}
   _nextBubblePoint: {fileID: 1585837044}
+  _maxShots: 10
+--- !u!114 &1132939790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1132939787}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 589203baa31749ca87b333014f60ff93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _bubbleLauncher: {fileID: 1132939789}
+  _mainCamera: {fileID: 519420031}
+  _maxDragRadius: 1
+  _minSpeed: 10
+  _maxSpeed: 20
+  _gravity: 20
 --- !u!1 &1585837043
 GameObject:
   m_ObjectHideFlags: 0

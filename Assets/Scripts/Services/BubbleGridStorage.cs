@@ -6,9 +6,9 @@ public class BubbleGridStorage : IBubbleGridStorage
 {
     private readonly Dictionary<Vector2Int, Bubble> _positionToBubble = new ();
     private readonly Dictionary<Bubble, Vector2Int> _bubbleToIndexes = new ();
-    private GridPositions _gridPositions;
+    private IGridPositionService _gridPositions;
 
-    public BubbleGridStorage(GridPositions gridPositions)
+    public BubbleGridStorage(IGridPositionService gridPositions)
     {
         _gridPositions = gridPositions;
     }
@@ -44,30 +44,43 @@ public class BubbleGridStorage : IBubbleGridStorage
 
     public bool TryGetPosition(Bubble bubble, out Vector2 position)
     {
-        if (!_bubbleToIndexes.TryGetValue(bubble, out Vector2Int indexes))
+        if (!_bubbleToIndexes.TryGetValue(bubble, out Vector2Int indices))
         {
             position = default;
             return false;
         }
 
 
-        if (indexes.x < 0 || indexes.x >= _gridPositions.Positions.GetLength(0)) 
+        if (indices.x < 0 || indices.x >= _gridPositions.GetLength(0)) 
         {
             position = default;
             return false;
         }
 
-        Vector2? foundPos = _gridPositions.GetPosition(indexes.x, indexes.y);
-        if (foundPos == null)
+        Vector2 foundPos = _gridPositions.GetPosition(indices.x, indices.y);
+        if (foundPos == Vector2.zero)
         {
             position = default;
             return false;
         }
         
-        position = (Vector2)foundPos;
+        position = foundPos;
         return true;
     }
-    
+
+    public bool TryGetPosition(Vector2Int indices, out Vector2 position)
+    {
+        Vector2 foundPos = _gridPositions.GetPosition(indices.x, indices.y);
+        if (foundPos == Vector2.zero)
+        {
+            position = default;
+            return false;
+        }
+        
+        position = foundPos;
+        return true;
+    }
+
     public bool TryGetIndices(Bubble bubble, out Vector2Int indexes)
     {
         return _bubbleToIndexes.TryGetValue(bubble, out indexes);
@@ -89,6 +102,8 @@ public interface IBubbleGridStorage
     bool TryGetBubble(Vector2Int position, out Bubble bubble);
     
     bool TryGetPosition(Bubble bubble, out Vector2 position);
+    bool TryGetPosition(Vector2Int indices, out Vector2 position);
+
     bool TryGetIndices(Bubble bubble, out Vector2Int position);
 
 
