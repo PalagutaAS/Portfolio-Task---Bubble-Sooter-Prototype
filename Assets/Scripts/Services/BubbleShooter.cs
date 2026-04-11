@@ -11,7 +11,6 @@ public class BubbleShooter : MonoBehaviour
     [SerializeField] private float _maxDragRadius = 3f;
     [SerializeField] private float _minSpeed = 5f;
     [SerializeField] private float _maxSpeed = 20f;
-    [SerializeField] private float _gravity = 20f;
 
     private bool _isDragging;
     private Vector3 _firePointPos;
@@ -82,7 +81,7 @@ public class BubbleShooter : MonoBehaviour
     private void ShootFromDrag()
     {
         Vector3 direction = (_firePointPos - _dragCurrentPos).normalized;
-        _bubbleLauncher.Shoot(direction, CalculateSpeed(), _gravity);
+        _bubbleLauncher.Shoot(direction, CalculateSpeed());
 
         _isDragging = false;
     }

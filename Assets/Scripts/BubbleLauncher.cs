@@ -54,7 +54,7 @@ public class BubbleLauncher : MonoBehaviour
         return bubble;
     } 
     
-    public void Shoot(Vector2 direction, float shotSpeed, float gravity = 20f)
+    public void Shoot(Vector2 direction, float shotSpeed)
     {
         if (_shotsRemaining <= 0 || _currentBubble == null) return;
 
@@ -62,7 +62,7 @@ public class BubbleLauncher : MonoBehaviour
         Bubble shotBubble = _currentBubble;
         _currentBubble = null;
 
-        ShotResult result = _trajectoryPredictor.Predict(_firePoint.position, direction, shotSpeed, gravity);
+        ShotResult result = _trajectoryPredictor.Predict(_firePoint.position, direction, shotSpeed);
 
         if (result.hit)
         {
@@ -76,23 +76,29 @@ public class BubbleLauncher : MonoBehaviour
     
     private IEnumerator AnimateShotAndRemove(Bubble bubble, ShotResult result)
     {
-        float elapsed = 0f;
-        int pointIndex = 1;
+        List<Vector2> path = result.trajectory;
+        if (path.Count < 2) yield break;
 
-        while (elapsed < result.duration && pointIndex < result.trajectory.Count)
+        float speed = result.shotSpeed;
+        
+        for (int i = 1; i < path.Count; i++)
         {
-            float step = Time.deltaTime;
-            elapsed += step;
-            float t = Mathf.Clamp01(elapsed / result.duration);
-            // Упрощённая интерполяция по точкам
-            int idx = Mathf.FloorToInt(t * (result.trajectory.Count - 1));
-            idx = Mathf.Clamp(idx, 0, result.trajectory.Count - 1);
-            bubble.transform.position = result.trajectory[idx];
-            yield return null;
+            Vector2 start = path[i - 1];
+            Vector2 end = path[i];
+            float distance = Vector2.Distance(start, end);
+            float duration = distance / speed;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                bubble.transform.position = Vector2.Lerp(start, end, t);
+                yield return null;
+            }
+            bubble.transform.position = end;
         }
 
-        // Дополнительно: можно добавить эффект "вылет за экран", например, уменьшение размера
-        // Теперь удаляем шар
         Destroy(bubble.gameObject);
         StartCoroutine(ReloadCoroutine());
     }
@@ -102,7 +108,6 @@ public class BubbleLauncher : MonoBehaviour
         List<Vector2> path = result.trajectory;
         if (path.Count < 2) yield break;
 
-        // Скорость полёта (константа, та же, что использовалась в симуляции)
         float speed = result.shotSpeed;
 
         for (int i = 1; i < path.Count; i++)
@@ -120,11 +125,9 @@ public class BubbleLauncher : MonoBehaviour
                 bubble.transform.position = Vector2.Lerp(start, end, t);
                 yield return null;
             }
-            // Фиксируем конечную точку сегмента
             bubble.transform.position = end;
         }
 
-        // Теперь шар точно стоит на позиции целевой ячейки
         AttachToCell(bubble, result.targetCell);
 
         // Запускаем проверку совпадений и удаление групп
