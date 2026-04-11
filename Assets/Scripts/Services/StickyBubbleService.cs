@@ -68,7 +68,6 @@ public class StickyBubbleService
         _bubbleStorage.AddBubble(indices, bubble);
         if (_bubbleStorage.TryGetPosition(indices, out Vector2 position))
         {
-            bubble.GetComponent<BubbleProjectile>().Launch(Vector2.zero, 0);
             Vector3 startPos = bubble.transform.position;
             Vector3 targetPos = position;
             float duration = 0.05f;

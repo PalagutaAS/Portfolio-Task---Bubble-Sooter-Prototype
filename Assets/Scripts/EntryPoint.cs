@@ -5,6 +5,8 @@ public class EntryPoint : MonoBehaviour
     [SerializeField] private GridSettings _gridSettings;
     [SerializeField] private Transform _gridTransform;
     [SerializeField] private BubbleLauncher _launcher;
+    [SerializeField] private TrajectoryRenderer _trajectoryRenderer;
+    [SerializeField] private TrajectorySettings _trajectorySettings;
 
     private GridGenerator _grid;
     private IBubbleFactoryRandom _bubbleFactory;
@@ -13,6 +15,7 @@ public class EntryPoint : MonoBehaviour
     private IGridPositionService _gridPositions;
     private IBubbleMatchFinder _matchFinder;
     private StickyBubbleService _stickyBubble;
+    private TrajectoryPredictor _trajectoryPredictor;
 
     private void Awake()
     {
@@ -28,10 +31,13 @@ public class EntryPoint : MonoBehaviour
         _stickyBubble = new StickyBubbleService(_matchFinder, _neighborFinder, _bubbleStorage, _gridPositions);
         _bubbleFactory = new BubbleFactory(_gridSettings.Prefab, _stickyBubble, _gridTransform);
 
+        Bounds bounds = new Bounds(Vector3.zero, new Vector3(5, 10, 0));
+        bounds.min = new Vector3(bounds.min.x, bounds.min.y - 2, bounds.min.z);
+        _trajectoryPredictor = new TrajectoryPredictor(_bubbleStorage,_neighborFinder,_gridPositions,_trajectorySettings, bounds);
         _grid = new GridGenerator(_gridSettings, _bubbleFactory, _gridPositions, _bubbleStorage);
         _grid.GenerateRandomBubbles();
-        
-        _launcher.Constructor(_bubbleFactory);
+        _trajectoryRenderer.Initialize(_trajectoryPredictor, _trajectorySettings);
+        _launcher.Constructor(_bubbleFactory, _trajectoryPredictor, _bubbleStorage);
         
         BubbleDebugger bubbleDebugger = new GameObject("BUBBLE DEBUGGER").AddComponent<BubbleDebugger>();
         bubbleDebugger.Constructor(_bubbleStorage, _neighborFinder, _matchFinder);

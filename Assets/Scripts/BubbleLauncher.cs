@@ -9,6 +9,8 @@ public class BubbleLauncher : MonoBehaviour
     [SerializeField] private int _maxShots = 10;
     
     private IBubbleFactoryRandom _bubbleFactory;
+    private IBubbleGridStorage _bubbleStorage;
+    private TrajectoryPredictor _trajectoryPredictor;
     
     private Bubble _currentBubble;
     private Queue<Bubble> _bubbleQueue;
@@ -18,9 +20,11 @@ public class BubbleLauncher : MonoBehaviour
     
     public Transform FirePoint => _firePoint;
     
-    public void Constructor(IBubbleFactoryRandom bubbleFactory)
+    public void Constructor(IBubbleFactoryRandom bubbleFactory, TrajectoryPredictor trajectoryPredictor, IBubbleGridStorage bubbleGridStorage)
     {
         _bubbleFactory = bubbleFactory;
+        _trajectoryPredictor = trajectoryPredictor;
+        _bubbleStorage = bubbleGridStorage;
         
         Clear();
         LoadInitialBubbles();
@@ -50,35 +54,98 @@ public class BubbleLauncher : MonoBehaviour
         return bubble;
     } 
     
-    public Bubble Shoot()
+    public void Shoot(Vector2 direction, float shotSpeed, float gravity = 20f)
     {
-        if (_shotsRemaining <= 0)
-        {
-            Debug.LogWarning("Нет доступных выстрелов! Достигнут лимит.");
-            return null;
-        }
-        
-        if (_currentBubble == null)
-        {
-            Debug.LogWarning("Нет текущего пузыря для выстрела!");
-            return null;
-        }
+        if (_shotsRemaining <= 0 || _currentBubble == null) return;
 
-        Bubble shotBubble = _currentBubble;
         _shotsRemaining--;
+        Bubble shotBubble = _currentBubble;
+        _currentBubble = null;
 
+        ShotResult result = _trajectoryPredictor.Predict(_firePoint.position, direction, shotSpeed, gravity);
+
+        if (result.hit)
+        {
+            StartCoroutine(AnimateShotAndAttach(shotBubble, result));
+        }
+        else
+        {
+            StartCoroutine(AnimateShotAndRemove(shotBubble, result));
+        }
+    }
+    
+    private IEnumerator AnimateShotAndRemove(Bubble bubble, ShotResult result)
+    {
+        float elapsed = 0f;
+        int pointIndex = 1;
+
+        while (elapsed < result.duration && pointIndex < result.trajectory.Count)
+        {
+            float step = Time.deltaTime;
+            elapsed += step;
+            float t = Mathf.Clamp01(elapsed / result.duration);
+            // Упрощённая интерполяция по точкам
+            int idx = Mathf.FloorToInt(t * (result.trajectory.Count - 1));
+            idx = Mathf.Clamp(idx, 0, result.trajectory.Count - 1);
+            bubble.transform.position = result.trajectory[idx];
+            yield return null;
+        }
+
+        // Дополнительно: можно добавить эффект "вылет за экран", например, уменьшение размера
+        // Теперь удаляем шар
+        Destroy(bubble.gameObject);
         StartCoroutine(ReloadCoroutine());
-        
-        return shotBubble;
+    }
+    
+    private IEnumerator AnimateShotAndAttach(Bubble bubble, ShotResult result)
+    {
+        List<Vector2> path = result.trajectory;
+        if (path.Count < 2) yield break;
+
+        // Скорость полёта (константа, та же, что использовалась в симуляции)
+        float speed = result.shotSpeed;
+
+        for (int i = 1; i < path.Count; i++)
+        {
+            Vector2 start = path[i - 1];
+            Vector2 end = path[i];
+            float distance = Vector2.Distance(start, end);
+            float duration = distance / speed;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                bubble.transform.position = Vector2.Lerp(start, end, t);
+                yield return null;
+            }
+            // Фиксируем конечную точку сегмента
+            bubble.transform.position = end;
+        }
+
+        // Теперь шар точно стоит на позиции целевой ячейки
+        AttachToCell(bubble, result.targetCell);
+
+        // Запускаем проверку совпадений и удаление групп
+        // (вызовите ваш MatchFinder)
+        StartCoroutine(ReloadCoroutine());
+    }
+    
+    private void AttachToCell(Bubble bubble, Vector2Int cellIndices)
+    {
+        _bubbleStorage.AddBubble(cellIndices, bubble);
+        if (_bubbleStorage.TryGetPosition(cellIndices, out Vector2 pos))
+        {
+            bubble.transform.position = pos;
+        }
     }
 
     private IEnumerator ReloadCoroutine()
     {
-        _currentBubble = null;
         yield return new WaitForSeconds(1f);
         ReplaceCurrentWithNext();
     }
-        
     
     private void ReplaceCurrentWithNext()
     {

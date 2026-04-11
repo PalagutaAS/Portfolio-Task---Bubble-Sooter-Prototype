@@ -48,7 +48,6 @@ public class BubbleFactory : IBubbleFactoryRandom, IBubbleFactory
         
         Bubble bubble = Object.Instantiate(_prefabBubble, _parentForBubbles);
         bubble.transform.position = position;
-        bubble.OnCollisionBubbles += _stickyBubbleService.OnCollisionBubbles;
 
         bubble.SetColor(colors[Random.Range(0, colors.Length)]);
         return bubble;

@@ -4,6 +4,7 @@ public class BubbleShooter : MonoBehaviour
 {
     [Header("Ссылки")]
     [SerializeField] private BubbleLauncher _bubbleLauncher;
+    [SerializeField] private TrajectoryRenderer _trajectoryRenderer;
     [SerializeField] private Camera _mainCamera;
 
     [Header("Настройки натягивания")]
@@ -27,7 +28,7 @@ public class BubbleShooter : MonoBehaviour
 
     private void Update()
     {
-        if (_bubbleLauncher.CurrentBubble == null) 
+        if (!_bubbleLauncher.CurrentBubble) 
             return;
         
         if (Input.GetMouseButtonDown(0) && !_isDragging)
@@ -37,13 +38,20 @@ public class BubbleShooter : MonoBehaviour
         else if (Input.GetMouseButton(0) && _isDragging)
         {
             UpdateDrag();
+            UpdateTrajectoryPreview();
         }
         else if (Input.GetMouseButtonUp(0) && _isDragging)
         {
             ShootFromDrag();
+            _trajectoryRenderer.HideTrajectory();
         }
     }
 
+    private void UpdateTrajectoryPreview()
+    {
+        Vector3 direction = (_firePointPos - _dragCurrentPos).normalized;
+        _trajectoryRenderer.ShowTrajectory(direction, CalculateSpeed());
+    }
 
     private void StartDrag()
     {
@@ -74,24 +82,17 @@ public class BubbleShooter : MonoBehaviour
     private void ShootFromDrag()
     {
         Vector3 direction = (_firePointPos - _dragCurrentPos).normalized;
-    
+        _bubbleLauncher.Shoot(direction, CalculateSpeed(), _gravity);
+
+        _isDragging = false;
+    }
+
+    private float CalculateSpeed()
+    {
         float dragDistance = (_dragCurrentPos - _firePointPos).magnitude;
     
         float t = Mathf.Clamp01(dragDistance / _maxDragRadius);
-        float shootSpeed = Mathf.Lerp(_minSpeed, _maxSpeed, t);
-    
-        Bubble bubble = _bubbleLauncher.Shoot();
-        if (bubble == null)
-        {
-            Debug.LogWarning("Не удалось выстрелить – нет доступных выстрелов.");
-            _isDragging = false;
-            return;
-        }
-
-        bubble.gameObject.AddComponent<BubbleProjectile>()
-            .Launch(direction, shootSpeed, _gravity);
-    
-        _isDragging = false;
+        return Mathf.Lerp(_minSpeed, _maxSpeed, t);
     }
 
 
