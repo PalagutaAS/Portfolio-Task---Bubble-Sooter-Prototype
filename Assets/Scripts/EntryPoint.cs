@@ -29,7 +29,7 @@ public class EntryPoint : MonoBehaviour
         _neighborFinder = new HexNeighborFinder(_gridSettings.rows, _gridSettings.columns, _bubbleStorage);
         _matchFinder = new BubbleMatchFinder(_bubbleStorage, _neighborFinder);
         _stickyBubble = new StickyBubbleService(_matchFinder, _neighborFinder, _bubbleStorage, _gridPositions);
-        _bubbleFactory = new BubbleFactory(_gridSettings.Prefab, _stickyBubble, _gridTransform);
+        _bubbleFactory = new BubbleFactory(_gridSettings.Prefab, _gridTransform);
 
         Bounds bounds = new Bounds(Vector3.zero, new Vector3(5, 10, 0));
         bounds.min = new Vector3(bounds.min.x, bounds.min.y - 2, bounds.min.z);

@@ -12,13 +12,11 @@ public interface IBubbleFactory
 public class BubbleFactory : IBubbleFactoryRandom, IBubbleFactory
 {
     private readonly Bubble _prefabBubble;
-    private readonly StickyBubbleService _stickyBubbleService;
     private readonly Transform _parentForBubbles;
 
-    public BubbleFactory(Bubble prefabBubble, StickyBubbleService stickyBubbleService, Transform parentForBubbles)
+    public BubbleFactory(Bubble prefabBubble, Transform parentForBubbles)
     {
         _prefabBubble = prefabBubble;
-        _stickyBubbleService = stickyBubbleService;
         _parentForBubbles = parentForBubbles;
     }
 
