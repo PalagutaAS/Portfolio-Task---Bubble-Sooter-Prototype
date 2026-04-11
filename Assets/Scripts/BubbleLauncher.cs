@@ -63,18 +63,11 @@ public class BubbleLauncher : MonoBehaviour
         _currentBubble = null;
 
         ShotResult result = _trajectoryPredictor.Predict(_firePoint.position, direction, shotSpeed);
-
-        if (result.hit)
-        {
-            StartCoroutine(AnimateShotAndAttach(shotBubble, result));
-        }
-        else
-        {
-            StartCoroutine(AnimateShotAndRemove(shotBubble, result));
-        }
+        
+        StartCoroutine(AnimateShot(shotBubble, result));
     }
     
-    private IEnumerator AnimateShotAndRemove(Bubble bubble, ShotResult result)
+    private IEnumerator AnimateShot(Bubble bubble, ShotResult result)
     {
         List<Vector2> path = result.trajectory;
         if (path.Count < 2) yield break;
@@ -99,42 +92,18 @@ public class BubbleLauncher : MonoBehaviour
             bubble.transform.position = end;
         }
 
-        Destroy(bubble.gameObject);
-        StartCoroutine(ReloadCoroutine());
-    }
-    
-    private IEnumerator AnimateShotAndAttach(Bubble bubble, ShotResult result)
-    {
-        List<Vector2> path = result.trajectory;
-        if (path.Count < 2) yield break;
-
-        float speed = result.shotSpeed;
-
-        for (int i = 1; i < path.Count; i++)
+        if (result.hit)
         {
-            Vector2 start = path[i - 1];
-            Vector2 end = path[i];
-            float distance = Vector2.Distance(start, end);
-            float duration = distance / speed;
-            float elapsed = 0f;
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                float t = Mathf.Clamp01(elapsed / duration);
-                bubble.transform.position = Vector2.Lerp(start, end, t);
-                yield return null;
-            }
-            bubble.transform.position = end;
+            AttachToCell(bubble, result.targetCell);
         }
-
-        AttachToCell(bubble, result.targetCell);
-
-        // Запускаем проверку совпадений и удаление групп
-        // (вызовите ваш MatchFinder)
+        else
+        {
+            Destroy(bubble.gameObject);
+        }
         StartCoroutine(ReloadCoroutine());
     }
-    
+
+    //Перенести в другой сервис
     private void AttachToCell(Bubble bubble, Vector2Int cellIndices)
     {
         _bubbleStorage.AddBubble(cellIndices, bubble);
@@ -142,6 +111,8 @@ public class BubbleLauncher : MonoBehaviour
         {
             bubble.transform.position = pos;
         }
+        // Запускаем проверку совпадений и удаление групп
+        // (вызовите ваш MatchFinder)
     }
 
     private IEnumerator ReloadCoroutine()
