@@ -65,7 +65,6 @@ public class StickyBubbleService : IStickuBubbleService
         Debug.Log($"Ближайшая позиция: {closestPos} c ячейкой {emptyList[index]}");
         
         bubbleStick.StartCoroutine(RepositionBubble(bubbleStick, emptyList[index]));
-        
     }
     
     private IEnumerator RepositionBubble(Bubble bubble, Vector2Int indices)

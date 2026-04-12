@@ -19,16 +19,18 @@ public class TrajectoryPredictor
     private readonly IBubbleNeighborFinder _neighborFinder;
     private readonly Bounds _fieldBounds;
     private readonly IGridPositionService _gridPositions;
+    private readonly ICollisionDetector _collisionDetector;
     private readonly TrajectorySettings _settings;
 
     public TrajectoryPredictor(IBubbleGridStorage storage, IBubbleNeighborFinder neighborFinder, 
-        IGridPositionService gridPositions, TrajectorySettings trajectorySettings, Bounds fieldBounds)
+        IGridPositionService gridPositions, TrajectorySettings trajectorySettings, ICollisionDetector collisionDetector, Bounds fieldBounds)
     {
         _gridPositions = gridPositions;
         _storage = storage;
         _neighborFinder = neighborFinder;
         _settings = trajectorySettings;
         _fieldBounds = fieldBounds;
+        _collisionDetector = collisionDetector;
     }
 
     public ShotResult Predict(
@@ -49,8 +51,7 @@ public class TrajectoryPredictor
         {
             Vector2 newPos = pos + vel * dt;
 
-            // ---- Проверка столкновения с шарами сетки на отрезке [pos, newPos] ----
-            if (TryFindCollision(pos, newPos, out Vector2 collisionPoint, out Bubble hitBubble))
+            if (_collisionDetector.FindFirstCollision(pos, newPos, out Vector2 collisionPoint, out Bubble hitBubble))
             {
                 trajectory.Add(collisionPoint);
                 float tHit = (collisionPoint - pos).magnitude / vel.magnitude;
@@ -158,47 +159,6 @@ public class TrajectoryPredictor
         return new ShotResult { hit = false, trajectory = trajectory, duration = elapsed, shotSpeed = speed };
     }
 
-    // Проверка пересечения отрезка с окружностями всех шаров
-    private bool TryFindCollision(Vector2 p1, Vector2 p2, out Vector2 collisionCenter, out Bubble hitBubble)
-    {
-        collisionCenter = Vector2.zero;
-        hitBubble = null;
-        float minT = float.MaxValue;
-        float radius = _settings.radiusBubble;
-        
-        Vector2 delta = p2 - p1;
-        float length = delta.magnitude;
-        Vector2 dir = delta / length; // нормализованное направление
-
-        foreach (Bubble bubble in _storage.GetAllBubbles())
-        {
-            if (!_storage.TryGetPosition(bubble, out Vector2 center)) continue;
-
-            Vector2 rel = p1 - center;
-            float a = 1f;
-            float b = 2f * Vector2.Dot(rel, dir);
-            float c = rel.sqrMagnitude - (2f * radius) * (2f * radius);
-            float disc = b * b - 4f * a * c;
-            if (disc < 0) continue;
-
-            float sqrtDisc = Mathf.Sqrt(disc);
-            float t1 = (-b - sqrtDisc) / (2f * a);
-            float t2 = (-b + sqrtDisc) / (2f * a);
-
-            float t = -1f;
-            if (t1 >= 0 && t1 <= length) t = t1;
-            else if (t2 >= 0 && t2 <= length) t = t2;
-
-            if (t >= 0 && t < minT)
-            {
-                minT = t;
-                collisionCenter = p1 + dir * t;
-                hitBubble = bubble;
-            }
-        }
-        return hitBubble != null;
-    }
-    
     private Vector2 ClosestPointOnSegment(Vector2 a, Vector2 b, Vector2 point)
     {
         Vector2 ab = b - a;

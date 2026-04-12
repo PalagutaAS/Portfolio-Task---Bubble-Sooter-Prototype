@@ -78,8 +78,7 @@ public class BubbleLauncher : MonoBehaviour
         {
             Vector2 start = path[i - 1];
             Vector2 end = path[i];
-            float distance = Vector2.Distance(start, end);
-            float duration = distance / speed;
+            float duration = result.duration / path.Count;
             float elapsed = 0f;
 
             while (elapsed < duration)
