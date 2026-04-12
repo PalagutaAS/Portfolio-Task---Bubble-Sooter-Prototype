@@ -2,7 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StickyBubbleService
+public interface IStickuBubbleService
+{
+    
+}
+
+public class StickyBubbleService : IStickuBubbleService
 {
     private readonly IBubbleMatchFinder _matchFinder;
     private readonly IBubbleNeighborFinder _neighborFinder;

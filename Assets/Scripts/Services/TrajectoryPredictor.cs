@@ -35,8 +35,7 @@ public class TrajectoryPredictor
         Vector2 startPos,
         Vector2 direction,
         float speed,
-        float maxTime = 3f,
-        bool isAimLine = false)
+        float maxTime = 3f)
     {
         Vector2 pos = startPos;
         Vector2 vel = direction * speed;
@@ -44,7 +43,7 @@ public class TrajectoryPredictor
         float elapsed = 0f;
 
         float radius = _settings.radiusBubble;
-        float dt = (isAimLine) ? _settings.aimLineDt : _settings.predictDt;
+        float dt = _settings.predictDeltaTime;
         
         while (elapsed < maxTime)
         {
@@ -93,7 +92,7 @@ public class TrajectoryPredictor
             if (newPos.y - radius <= _fieldBounds.min.y)
             {
                 // Вычисляем точное время пересечения нижней границы
-                float t = (_fieldBounds.min.y + radius - pos.y) / vel.y; // vel.y < 0
+                float t = (_fieldBounds.min.y + radius - pos.y) / vel.y;
                 Vector2 exitPoint = pos + vel * t;
                 trajectory.Add(exitPoint);
                 elapsed += t;

@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f66bcdd6df4940c08248229f29d6fa6f, type: 3}
   m_Name: Trajectory Settings
   m_EditorClassIdentifier: 
-  aimLineDt: 0.03
-  predictDt: 0.01
+  predictDeltaTime: 0.04
   radiusBubble: 0.2
   gravity: 20
