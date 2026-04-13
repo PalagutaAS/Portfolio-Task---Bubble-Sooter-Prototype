@@ -10,7 +10,7 @@ public class TrajectoryRenderer : MonoBehaviour
     [SerializeField] private float _minDistanceBetweenDots = 0.4f;
     [SerializeField] private float _scaleLastDot = 0.4f;
 
-    private TrajectoryPredictor _predictor;
+    private ITrajectoryPredictor _predictor;
     private TrajectorySettings _settings;
     private bool _isActive = true;
 
@@ -20,7 +20,7 @@ public class TrajectoryRenderer : MonoBehaviour
     private Vector2 _lastPoint;
 
 
-    public void Initialize(TrajectoryPredictor predictor, TrajectorySettings trajectorySettings)
+    public void Initialize(ITrajectoryPredictor predictor, TrajectorySettings trajectorySettings)
     {
         _predictor = predictor;
         _settings = trajectorySettings;

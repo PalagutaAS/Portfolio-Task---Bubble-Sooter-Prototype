@@ -10,7 +10,8 @@ public class BubbleLauncher : MonoBehaviour
     
     private IBubbleFactoryRandom _bubbleFactory;
     private IBubbleGridStorage _bubbleStorage;
-    private TrajectoryPredictor _trajectoryPredictor;
+    private ITrajectoryPredictor _trajectoryPredictor;
+    private IStickyBubbleService _stickyBubbleService;
     
     private Bubble _currentBubble;
     private Queue<Bubble> _bubbleQueue;
@@ -20,11 +21,12 @@ public class BubbleLauncher : MonoBehaviour
     
     public Transform FirePoint => _firePoint;
     
-    public void Constructor(IBubbleFactoryRandom bubbleFactory, TrajectoryPredictor trajectoryPredictor, IBubbleGridStorage bubbleGridStorage)
+    public void Constructor(IBubbleFactoryRandom bubbleFactory, ITrajectoryPredictor trajectoryPredictor, IBubbleGridStorage bubbleGridStorage, IStickyBubbleService stickyBubbleService)
     {
         _bubbleFactory = bubbleFactory;
         _trajectoryPredictor = trajectoryPredictor;
         _bubbleStorage = bubbleGridStorage;
+        _stickyBubbleService = stickyBubbleService;
         
         Clear();
         LoadInitialBubbles();
@@ -93,25 +95,13 @@ public class BubbleLauncher : MonoBehaviour
 
         if (result.hit)
         {
-            AttachToCell(bubble, result.targetCell);
+            _stickyBubbleService.AttachToCell(bubble, result.targetCell);
         }
         else
         {
             Destroy(bubble.gameObject);
         }
         StartCoroutine(ReloadCoroutine());
-    }
-
-    //Перенести в другой сервис
-    private void AttachToCell(Bubble bubble, Vector2Int cellIndices)
-    {
-        _bubbleStorage.AddBubble(cellIndices, bubble);
-        if (_bubbleStorage.TryGetPosition(cellIndices, out Vector2 pos))
-        {
-            bubble.transform.position = pos;
-        }
-        // Запускаем проверку совпадений и удаление групп
-        // (вызовите ваш MatchFinder)
     }
 
     private IEnumerator ReloadCoroutine()

@@ -170,6 +170,7 @@ public interface IBubbleNeighborFinder
     
     /// <summary>
     /// Проверяет, связан ли пузырёк с заданными индексами с верхним рядом (row = 0) через соседние пузыри.
+    /// Вынести в отдельный сервис
     /// </summary>
     bool IsConnectedToTopRow(Vector2Int startIndices);
 

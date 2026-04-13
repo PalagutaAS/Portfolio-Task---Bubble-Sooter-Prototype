@@ -13,7 +13,17 @@ public struct ShotResult
     public float shotSpeed;
 }
 
-public class TrajectoryPredictor
+
+public interface ITrajectoryPredictor
+{
+    ShotResult Predict(
+        Vector2 startPos,
+        Vector2 direction,
+        float speed,
+        float maxTime = 3f);
+}
+
+public class TrajectoryPredictor : ITrajectoryPredictor
 {
     private readonly IBubbleGridStorage _storage;
     private readonly IBubbleNeighborFinder _neighborFinder;
@@ -157,14 +167,6 @@ public class TrajectoryPredictor
 
         // Не попал и не улетел за maxTime
         return new ShotResult { hit = false, trajectory = trajectory, duration = elapsed, shotSpeed = speed };
-    }
-
-    private Vector2 ClosestPointOnSegment(Vector2 a, Vector2 b, Vector2 point)
-    {
-        Vector2 ab = b - a;
-        float t = Vector2.Dot(point - a, ab) / ab.sqrMagnitude;
-        t = Mathf.Clamp01(t);
-        return a + t * ab;
     }
 
     // Выбор ближайшей пустой ячейки к точке касания

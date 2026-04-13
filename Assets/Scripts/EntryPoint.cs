@@ -14,8 +14,8 @@ public class EntryPoint : MonoBehaviour
     private IBubbleNeighborFinder _neighborFinder;
     private IGridPositionService _gridPositions;
     private IBubbleMatchFinder _matchFinder;
-    private StickyBubbleService _stickyBubble;
-    private TrajectoryPredictor _trajectoryPredictor;
+    private IStickyBubbleService _stickyBubble;
+    private ITrajectoryPredictor _trajectoryPredictor;
     private ICollisionDetector _collisionDetector;
 
     private void Awake()
@@ -39,7 +39,7 @@ public class EntryPoint : MonoBehaviour
         _grid = new GridGenerator(_gridSettings, _bubbleFactory, _gridPositions, _bubbleStorage);
         _grid.GenerateRandomBubbles();
         _trajectoryRenderer.Initialize(_trajectoryPredictor, _trajectorySettings);
-        _launcher.Constructor(_bubbleFactory, _trajectoryPredictor, _bubbleStorage);
+        _launcher.Constructor(_bubbleFactory, _trajectoryPredictor, _bubbleStorage, _stickyBubble);
         
         BubbleDebugger bubbleDebugger = new GameObject("BUBBLE DEBUGGER").AddComponent<BubbleDebugger>();
         bubbleDebugger.Constructor(_bubbleStorage, _neighborFinder, _matchFinder);
