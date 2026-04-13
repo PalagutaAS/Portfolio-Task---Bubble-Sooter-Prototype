@@ -12,14 +12,16 @@ public class StickyBubbleService : IStickyBubbleService
     private readonly IBubbleNeighborFinder _neighborFinder;
     private readonly IBubbleGridStorage _bubbleStorage;
     private readonly IGridPositionService _gridPositions;
+    private readonly IFloatingBubbleRemover _floatingRemover;
 
     public StickyBubbleService(IBubbleMatchFinder matchFinder, IBubbleNeighborFinder neighborFinder,
-        IBubbleGridStorage bubbleStorage, IGridPositionService gridPositions)
+        IBubbleGridStorage bubbleStorage, IGridPositionService gridPositions, IFloatingBubbleRemover floatingRemover)
     {
         _matchFinder = matchFinder;
         _neighborFinder = neighborFinder;
         _bubbleStorage = bubbleStorage;
         _gridPositions = gridPositions;
+        _floatingRemover = floatingRemover;
     }
 
     public void AttachToCell(Bubble bubble, Vector2Int cellIndices)
@@ -38,6 +40,9 @@ public class StickyBubbleService : IStickyBubbleService
             {
                 _bubbleStorage.RemoveBubble(b);
             }
+            
+            int floatingRemoved = _floatingRemover.RemoveFloatingBubbles();
+            Debug.Log($"Удалено висячих пузырей: {floatingRemoved}");
             
             // Запускаем проверку на соприкосновение с потолком,
             // но не знаю как именно это сделать/реализовать, снаю что нужен отдельный сервис на это
