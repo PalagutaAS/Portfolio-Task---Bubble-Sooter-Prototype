@@ -172,6 +172,7 @@ MonoBehaviour:
   _launcher: {fileID: 1132939789}
   _trajectoryRenderer: {fileID: 177811409}
   _trajectorySettings: {fileID: 11400000, guid: 69116d3ab82023e4ba9fca5e328dfde7, type: 2}
+  _bubbleAnimationSettings: {fileID: 11400000, guid: 00723856cbe32ab43a1b0c0ace87b838, type: 2}
 --- !u!114 &177811409
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -522,9 +523,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _firePoint: {fileID: 994116858}
   _nextBubblePoint: {fileID: 1585837044}
-  _maxShots: 30
-  _ulong: 18446744073709551615
-  _uint: 5292
+  _maxShots: 999
 --- !u!114 &1132939790
 MonoBehaviour:
   m_ObjectHideFlags: 0

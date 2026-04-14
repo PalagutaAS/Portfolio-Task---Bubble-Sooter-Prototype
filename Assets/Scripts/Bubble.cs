@@ -6,9 +6,11 @@ public class Bubble : MonoBehaviour
     [SerializeField] private SpriteRenderer _sprite;
 
     public BubbleColor Color { get; private set; }
+    public bool IsDestroying { get; set; }
 
     private void Awake()
     {
+        IsDestroying = false;
         if (_sprite == null)
             return;
     }

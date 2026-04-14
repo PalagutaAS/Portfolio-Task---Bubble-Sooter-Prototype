@@ -46,7 +46,6 @@ public class GridPositions : IGridPositionService
             int cellsInRow = (row % 2 == 0) ? columns : columns - 1;
             float xOffset = (row % 2 == 1) ? offsetX : 0f;
 
-            // Y позиция: верхний ряд (row = 0) -> Y = 0, каждый следующий ряд опускается на verticalStep вниз
             float yPos = -row * verticalStep - cellSize/2;
 
             for (int col = 0; col < cellsInRow; col++)

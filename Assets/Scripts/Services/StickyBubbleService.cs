@@ -9,19 +9,17 @@ public interface IStickyBubbleService
 public class StickyBubbleService : IStickyBubbleService
 {
     private readonly IBubbleMatchFinder _matchFinder;
-    private readonly IBubbleNeighborFinder _neighborFinder;
     private readonly IBubbleGridStorage _bubbleStorage;
-    private readonly IGridPositionService _gridPositions;
     private readonly IFloatingBubbleRemover _floatingRemover;
+    private readonly IBubbleWaveAnimationService _bubbleWaveAnimation;
 
-    public StickyBubbleService(IBubbleMatchFinder matchFinder, IBubbleNeighborFinder neighborFinder,
-        IBubbleGridStorage bubbleStorage, IGridPositionService gridPositions, IFloatingBubbleRemover floatingRemover)
+    public StickyBubbleService(IBubbleMatchFinder matchFinder,
+        IBubbleGridStorage bubbleStorage, IFloatingBubbleRemover floatingRemover, IBubbleWaveAnimationService bubbleWaveAnimation)
     {
         _matchFinder = matchFinder;
-        _neighborFinder = neighborFinder;
         _bubbleStorage = bubbleStorage;
-        _gridPositions = gridPositions;
         _floatingRemover = floatingRemover;
+        _bubbleWaveAnimation = bubbleWaveAnimation;
     }
 
     public void AttachToCell(Bubble bubble, Vector2Int cellIndices)
@@ -45,7 +43,9 @@ public class StickyBubbleService : IStickyBubbleService
             Debug.Log($"Удалено висячих пузырей: {floatingRemoved}");
             
             // Запускаем проверку на соприкосновение с потолком,
-            // но не знаю как именно это сделать/реализовать, снаю что нужен отдельный сервис на это
+            // но не знаю как именно это сделать/реализовать, знаю что нужен отдельный сервис на это
         }
+
+        _bubbleWaveAnimation.AnimateNeighbors(cellIndices);
     }
 }

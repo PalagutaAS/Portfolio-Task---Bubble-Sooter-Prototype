@@ -161,7 +161,6 @@ public class HexNeighborFinder : IBubbleNeighborFinder
 
 public interface IBubbleNeighborFinder
 {
-    
     /// <summary>
     /// Возвращает список существующих соседей для заданного индекса.
     /// Каждый элемент — пара (индексы, Bubble).

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using UnityEngine;
 
 public class BubbleGridStorage : IBubbleGridStorage
@@ -7,10 +8,12 @@ public class BubbleGridStorage : IBubbleGridStorage
     private readonly Dictionary<Vector2Int, Bubble> _positionToBubble = new ();
     private readonly Dictionary<Bubble, Vector2Int> _bubbleToIndexes = new ();
     private IGridPositionService _gridPositions;
+    private IBubbleBoomAnimationService _boomAnimationsService;
 
-    public BubbleGridStorage(IGridPositionService gridPositions)
+    public BubbleGridStorage(IGridPositionService gridPositions, IBubbleBoomAnimationService boomAnimationsService)
     {
         _gridPositions = gridPositions;
+        _boomAnimationsService = boomAnimationsService;
     }
 
     public void AddBubble(Vector2Int indexesOnGrid, Bubble bubble)
@@ -22,13 +25,20 @@ public class BubbleGridStorage : IBubbleGridStorage
 
     public void RemoveBubble(Bubble bubble)
     {
-        if (bubble == null) return;
-        if (_bubbleToIndexes.TryGetValue(bubble, out Vector2Int indexes))
-        {
-            _positionToBubble.Remove(indexes);
-            _bubbleToIndexes.Remove(bubble);
-            Object.Destroy(bubble.gameObject);
-        }
+        if (bubble == null) 
+            return;
+        
+        if (!_bubbleToIndexes.TryGetValue(bubble, out Vector2Int indexes)) 
+            return;
+
+        if (bubble.IsDestroying) 
+            return;
+        
+        bubble.IsDestroying = true;
+        
+        _positionToBubble.Remove(indexes);
+        _bubbleToIndexes.Remove(bubble);
+        _boomAnimationsService.AnimateBoom(bubble.transform);
     }
 
     public void Clear()
@@ -105,10 +115,6 @@ public interface IBubbleGridStorage
     bool TryGetPosition(Vector2Int indices, out Vector2 position);
 
     bool TryGetIndices(Bubble bubble, out Vector2Int position);
-
-
-    /// <summary>
-    /// Получить все пузыри (опционально).
-    /// </summary>
+    
     IEnumerable<Bubble> GetAllBubbles();
 }
