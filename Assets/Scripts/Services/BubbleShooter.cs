@@ -18,6 +18,8 @@ public class BubbleShooter : MonoBehaviour
     
     private Vector2 _lastPreviewDirection;
     private float _lastPreviewSpeed;
+    private int _frameSkipCounter;
+    private const int FRAMES_TO_SKIP = 3;
     private void Awake()
     {
         if (_bubbleLauncher == null)
@@ -50,10 +52,15 @@ public class BubbleShooter : MonoBehaviour
 
     private void UpdateTrajectoryPreview()
     {
+        _frameSkipCounter++;
+        if (_frameSkipCounter < FRAMES_TO_SKIP)
+            return;
+        _frameSkipCounter = 0;
+        
         Vector3 direction = (_firePointPos - _dragCurrentPos).normalized;
         float speed = CalculateSpeed();
         
-        if (direction == (Vector3)_lastPreviewDirection && speed == _lastPreviewSpeed)
+        if (direction == (Vector3)_lastPreviewDirection && Mathf.Abs(speed - _lastPreviewSpeed) < 0.01)
             return;
         
         _lastPreviewDirection = direction;
