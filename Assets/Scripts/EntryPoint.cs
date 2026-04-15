@@ -5,11 +5,13 @@ public class EntryPoint : MonoBehaviour
     [SerializeField] private GridSettings _gridSettings;
     [SerializeField] private Transform _gridTransform;
     [SerializeField] private GameLoop _gameLoop;
-    [SerializeField] private GameOverUI _gameOverUI;
     [SerializeField] private BubbleLauncher _launcher;
     [SerializeField] private TrajectoryRenderer _trajectoryRenderer;
     [SerializeField] private TrajectorySettings _trajectorySettings;
     [SerializeField] private BubbleAnimationSettings _bubbleAnimationSettings;
+    [Space, Header("UI")]
+    [SerializeField] private GameOverUI _gameOverUI;
+
 
     private GridGenerator _grid;
     private IBubbleFactoryRandom _bubbleFactory;

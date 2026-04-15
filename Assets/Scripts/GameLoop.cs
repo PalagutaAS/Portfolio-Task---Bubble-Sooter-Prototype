@@ -31,7 +31,13 @@ public class GameLoop : MonoBehaviour
         _gameOverUI = gameOverUI;
         
         _bubbleLauncher.OnShotProcessed += HandleShotProcessed;
+        _bubbleLauncher.OnOutOfShots += HandleShotsEmpty;
         gameObject.SetActive(true);
+    }
+
+    private void HandleShotsEmpty()
+    {
+        _currentState = GameState.GameOver;
     }
 
     private void HandleShotProcessed(Bubble shotBubble, ShotResult shotResult)
@@ -49,6 +55,7 @@ public class GameLoop : MonoBehaviour
     
     public void StartNewGame()
     {
+        StopAllCoroutines();
         _currentState = GameState.Playing;
         
         _gridGenerator.GenerateRandomBubbles();
@@ -67,7 +74,7 @@ public class GameLoop : MonoBehaviour
         else
             Destroy(shotBubble.gameObject);
 
-        if (_bubbleLauncher.ShotsRemaining == 0)
+        if (_currentState == GameState.GameOver)
         {
             Invoke(nameof(GameOverState),0.5f);
             yield break;
@@ -79,10 +86,6 @@ public class GameLoop : MonoBehaviour
 
     private void GameOverState()
     {
-        if (_currentState != GameState.ProcessingShot)
-            return;
-        
-        Debug.Log("GAME OVER");
         _currentState = GameState.GameOver;
         _gameOverUI.ShowGameOver();
     }

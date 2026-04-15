@@ -16,10 +16,22 @@ public class BubbleLauncher : MonoBehaviour
     private Queue<Bubble> _bubbleQueue;
     private int _shotsRemaining;
 
-    public int ShotsRemaining => _shotsRemaining;
+    private int ShotsRemaining
+    {
+        get => _shotsRemaining;
+        set
+        {
+            _shotsRemaining = value;
+            OnShotsCountChanged?.Invoke(_shotsRemaining);
+            if (_shotsRemaining == 0)
+                OnOutOfShots?.Invoke();
+        }
+    }
 
     public Bubble CurrentBubble => _currentBubble;
     public event Action<Bubble, ShotResult> OnShotProcessed;
+    public event Action OnOutOfShots;
+    public event Action<int> OnShotsCountChanged;
     public Transform FirePoint => _firePoint;
     
     public void Constructor(IBubbleFactoryRandom bubbleFactory, ITrajectoryPredictor trajectoryPredictor)
@@ -56,14 +68,17 @@ public class BubbleLauncher : MonoBehaviour
     
     public void Shoot(Vector2 direction, float shotSpeed)
     {
-        if (_shotsRemaining <= 0 || _currentBubble == null) return;
+        if (ShotsRemaining <= 0 || _currentBubble == null) return;
 
-        _shotsRemaining--;
+        
         Bubble shotBubble = _currentBubble;
         _currentBubble = null;
 
         ShotResult result = _trajectoryPredictor.Predict(_firePoint.position, direction, shotSpeed);
         OnShotProcessed?.Invoke(shotBubble, result);
+        
+        ShotsRemaining--;
+
     }
     
     public void Reload()
@@ -97,6 +112,6 @@ public class BubbleLauncher : MonoBehaviour
         if (_currentBubble != null)
             Destroy(_currentBubble.gameObject);
         _currentBubble = null;
-        _shotsRemaining = _maxShots;
+        ShotsRemaining = _maxShots;
     }
 }
