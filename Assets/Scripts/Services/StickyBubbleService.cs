@@ -3,7 +3,7 @@ using UnityEngine;
 
 public interface IStickyBubbleService
 {
-    void AttachToCell(Bubble bubble, Vector2Int resultTargetCell);
+    List<Bubble> AttachToCell(Bubble bubble, Vector2Int resultTargetCell);
 }
 
 public class StickyBubbleService : IStickyBubbleService
@@ -12,17 +12,19 @@ public class StickyBubbleService : IStickyBubbleService
     private readonly IBubbleGridStorage _bubbleStorage;
     private readonly IFloatingBubbleRemover _floatingRemover;
     private readonly IBubbleWaveAnimationService _bubbleWaveAnimation;
+    private readonly IScoreService _scoreService;
 
     public StickyBubbleService(IBubbleMatchFinder matchFinder,
-        IBubbleGridStorage bubbleStorage, IFloatingBubbleRemover floatingRemover, IBubbleWaveAnimationService bubbleWaveAnimation)
+        IBubbleGridStorage bubbleStorage, IFloatingBubbleRemover floatingRemover, IBubbleWaveAnimationService bubbleWaveAnimation, IScoreService scoreService)
     {
         _matchFinder = matchFinder;
         _bubbleStorage = bubbleStorage;
         _floatingRemover = floatingRemover;
         _bubbleWaveAnimation = bubbleWaveAnimation;
+        _scoreService = scoreService;
     }
 
-    public void AttachToCell(Bubble bubble, Vector2Int cellIndices)
+    public List<Bubble> AttachToCell(Bubble bubble, Vector2Int cellIndices)
     {
         _bubbleStorage.AddBubble(cellIndices, bubble);
         if (_bubbleStorage.TryGetPosition(cellIndices, out Vector2 pos))
@@ -31,8 +33,8 @@ public class StickyBubbleService : IStickyBubbleService
         }
 
         List<Bubble> listBubble = _matchFinder.FindMatchingBubbles(bubble);
-        
-        if (listBubble.Count >= 3)
+        int countMatch = listBubble.Count;
+        if (countMatch >= 3)
         {
             foreach (Bubble b in listBubble)
             {
@@ -40,12 +42,14 @@ public class StickyBubbleService : IStickyBubbleService
             }
             
             int floatingRemoved = _floatingRemover.RemoveFloatingBubbles();
-            Debug.Log($"Удалено висячих пузырей: {floatingRemoved}");
+            _scoreService.BubblePopped(countMatch, floatingRemoved);
             
             // Запускаем проверку на соприкосновение с потолком,
             // но не знаю как именно это сделать/реализовать, знаю что нужен отдельный сервис на это
+            // Возможно вынести часть в отдельные сервисы, много ответственности
         }
 
         _bubbleWaveAnimation.AnimateNeighbors(cellIndices);
+        return listBubble;
     }
 }

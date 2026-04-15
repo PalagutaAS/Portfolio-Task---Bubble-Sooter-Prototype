@@ -11,6 +11,7 @@ public class EntryPoint : MonoBehaviour
     [SerializeField] private BubbleAnimationSettings _bubbleAnimationSettings;
     [Space, Header("UI")]
     [SerializeField] private GameOverUI _gameOverUI;
+    [SerializeField] private ScoreCounterUI _scoreUI;
 
 
     private GridGenerator _grid;
@@ -26,6 +27,8 @@ public class EntryPoint : MonoBehaviour
     private IBubbleWaveAnimationService _bubbleWaveAnimationService;
     private IBubbleBoomAnimationService _bubbleBoomAnimationService;
     private IBubbleFlightAnimator _bubbleFlightAnimator;
+    private IScoreService _scoreService;
+    private IScore _score;
 
     private void Awake()
     {
@@ -37,6 +40,8 @@ public class EntryPoint : MonoBehaviour
         Bounds bounds = new Bounds(Vector3.zero, new Vector3(5, 10, 0));
         bounds.min = new Vector3(bounds.min.x, bounds.min.y - 2, bounds.min.z);
         
+        _score = new Score();
+        _scoreService = new ScoreService(_score);
         _bubbleFlightAnimator = new BubbleFlightAnimator();
         _bubbleBoomAnimationService = new BubbleBoomAnimationService();
         _gridPositions = new GridPositions(_gridSettings, _gridTransform);
@@ -46,7 +51,7 @@ public class EntryPoint : MonoBehaviour
         _floatingBubbleRemover = new FloatingBubbleRemover(_bubbleStorage,_neighborFinder);
         _bubbleWaveAnimationService =
             new BubbleWaveAnimationService(_neighborFinder, _gridPositions, _bubbleStorage, _bubbleAnimationSettings);
-        _stickyBubbleService = new StickyBubbleService(_matchFinder, _bubbleStorage, _floatingBubbleRemover, _bubbleWaveAnimationService);
+        _stickyBubbleService = new StickyBubbleService(_matchFinder, _bubbleStorage, _floatingBubbleRemover, _bubbleWaveAnimationService, _scoreService);
         _bubbleFactory = new BubbleFactory(_gridSettings.Prefab, _gridTransform);
         _collisionDetector = new CollisionDetector(_bubbleStorage, _trajectorySettings.radiusBubble);
         
@@ -54,6 +59,7 @@ public class EntryPoint : MonoBehaviour
         _grid = new GridGenerator(_gridSettings, _bubbleFactory, _gridPositions, _bubbleStorage);
         _trajectoryRenderer.Initialize(_trajectoryPredictor, _trajectorySettings);
         _launcher.Constructor(_bubbleFactory, _trajectoryPredictor);
+        _scoreUI.Constructor(_score);
         
         //BubbleDebugger bubbleDebugger = new GameObject("BUBBLE DEBUGGER").AddComponent<BubbleDebugger>();
         //bubbleDebugger.Constructor(_bubbleStorage, _neighborFinder, _matchFinder);
@@ -61,12 +67,6 @@ public class EntryPoint : MonoBehaviour
 
     private void Start()
     {
-        _gameLoop.Constructor(_stickyBubbleService, _bubbleFlightAnimator, _grid, _gameOverUI, _launcher);
-    }
-
-    [ContextMenu("RegenerateGrid")]
-    private void RegenerateGrid()
-    {
-        _grid.GenerateRandomBubbles();
+        _gameLoop.Constructor(_stickyBubbleService, _bubbleFlightAnimator, _score, _grid, _gameOverUI, _launcher);
     }
 }

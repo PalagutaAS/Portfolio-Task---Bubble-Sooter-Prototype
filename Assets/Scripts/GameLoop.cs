@@ -17,10 +17,12 @@ public class GameLoop : MonoBehaviour
     private IStickyBubbleService _stickyBubbleService;
     private IBubbleFlightAnimator _flightAnimator;
     private bool _gameOverPending;
+    private IScore _score;
 
     public void Constructor(
         IStickyBubbleService stickyBubbleService,
         IBubbleFlightAnimator flightAnimator,
+        IScore score,
         GridGenerator gridGenerator,
         GameOverUI gameOverUI,
         BubbleLauncher launcher)
@@ -29,6 +31,7 @@ public class GameLoop : MonoBehaviour
         _bubbleLauncher = launcher;
         _stickyBubbleService = stickyBubbleService;
         _flightAnimator = flightAnimator;
+        _score = score;
         _gameOverUI = gameOverUI;
         
         _bubbleLauncher.OnShotProcessed += HandleShotProcessed;
@@ -58,6 +61,7 @@ public class GameLoop : MonoBehaviour
     {
         StopAllCoroutines();
         _gameOverPending = false;
+        _score.ResetScore();
         
         _currentState = GameState.Playing;
         
@@ -94,5 +98,14 @@ public class GameLoop : MonoBehaviour
         
         _currentState = GameState.GameOver;
         _gameOverUI.ShowGameOver();
+    }
+    
+    private void OnDestroy()
+    {
+        if (_bubbleLauncher != null)
+        {
+            _bubbleLauncher.OnShotProcessed -= HandleShotProcessed;
+            _bubbleLauncher.OnOutOfShots -= HandleShotsEmpty;
+        }
     }
 }

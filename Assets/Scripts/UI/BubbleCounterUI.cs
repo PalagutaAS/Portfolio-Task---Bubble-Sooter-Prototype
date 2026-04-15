@@ -15,4 +15,12 @@ public class BubbleCounterUI : MonoBehaviour
     {
         _tmpText.text = count.ToString();
     }
+    
+    private void OnDestroy()
+    {
+        if (_bubbleLauncher != null)
+        {
+            _bubbleLauncher.OnShotsCountChanged -= ChangeText;
+        }
+    }
 }
