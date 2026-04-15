@@ -15,12 +15,13 @@ public class EntryPoint : MonoBehaviour
     private IBubbleNeighborFinder _neighborFinder;
     private IGridPositionService _gridPositions;
     private IBubbleMatchFinder _matchFinder;
-    private IStickyBubbleService _stickyBubble;
+    private IStickyBubbleService _stickyBubbleService;
     private ITrajectoryPredictor _trajectoryPredictor;
     private ICollisionDetector _collisionDetector;
     private IFloatingBubbleRemover _floatingBubbleRemover;
     private IBubbleWaveAnimationService _bubbleWaveAnimationService;
     private IBubbleBoomAnimationService _bubbleBoomAnimationService;
+    private IBubbleFlightAnimator _bubbleFlightAnimator;
 
     private void Awake()
     {
@@ -29,6 +30,7 @@ public class EntryPoint : MonoBehaviour
 
     private void CreateAssets()
     {
+        _bubbleFlightAnimator = new BubbleFlightAnimator();
         _bubbleBoomAnimationService = new BubbleBoomAnimationService();
         _gridPositions = new GridPositions(_gridSettings, _gridTransform);
         _bubbleStorage = new BubbleGridStorage(_gridPositions, _bubbleBoomAnimationService);
@@ -37,7 +39,7 @@ public class EntryPoint : MonoBehaviour
         _floatingBubbleRemover = new FloatingBubbleRemover(_bubbleStorage,_neighborFinder);
         _bubbleWaveAnimationService =
             new BubbleWaveAnimationService(_neighborFinder, _gridPositions, _bubbleStorage, _bubbleAnimationSettings);
-        _stickyBubble = new StickyBubbleService(_matchFinder, _bubbleStorage, _floatingBubbleRemover, _bubbleWaveAnimationService);
+        _stickyBubbleService = new StickyBubbleService(_matchFinder, _bubbleStorage, _floatingBubbleRemover, _bubbleWaveAnimationService);
         _bubbleFactory = new BubbleFactory(_gridSettings.Prefab, _gridTransform);
         _collisionDetector = new CollisionDetector(_bubbleStorage, _trajectorySettings.radiusBubble);
         
@@ -46,7 +48,7 @@ public class EntryPoint : MonoBehaviour
         _trajectoryPredictor = new TrajectoryPredictor(_bubbleStorage, _neighborFinder, _gridPositions, _trajectorySettings, _collisionDetector, bounds);
         _grid = new GridGenerator(_gridSettings, _bubbleFactory, _gridPositions, _bubbleStorage);
         _trajectoryRenderer.Initialize(_trajectoryPredictor, _trajectorySettings);
-        _launcher.Constructor(_bubbleFactory, _trajectoryPredictor, _bubbleStorage, _stickyBubble);
+        _launcher.Constructor(_bubbleFactory, _trajectoryPredictor, _bubbleStorage, _stickyBubbleService);
         
         BubbleDebugger bubbleDebugger = new GameObject("BUBBLE DEBUGGER").AddComponent<BubbleDebugger>();
         bubbleDebugger.Constructor(_bubbleStorage, _neighborFinder, _matchFinder);
@@ -55,7 +57,7 @@ public class EntryPoint : MonoBehaviour
     private void Start()
     {
         GameLoop gameLoop = new GameObject("GAME LOOP").AddComponent<GameLoop>();
-        gameLoop.Constructor(_bubbleStorage, _neighborFinder, _matchFinder, _grid);
+        gameLoop.Constructor(_bubbleStorage, _neighborFinder, _matchFinder, _stickyBubbleService, _bubbleFlightAnimator, _grid, _launcher);
     }
 
     [ContextMenu("RegenerateGrid")]

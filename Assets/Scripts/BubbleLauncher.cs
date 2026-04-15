@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,30 +10,27 @@ public class BubbleLauncher : MonoBehaviour
     [SerializeField] private int _maxShots = 10;
     
     private IBubbleFactoryRandom _bubbleFactory;
-    private IBubbleGridStorage _bubbleStorage;
     private ITrajectoryPredictor _trajectoryPredictor;
-    private IStickyBubbleService _stickyBubbleService;
     
     private Bubble _currentBubble;
     private Queue<Bubble> _bubbleQueue;
     private int _shotsRemaining;
-    
+
+    public int ShotsRemaining => _shotsRemaining;
+
     public Bubble CurrentBubble => _currentBubble;
-    
+    public event Action<Bubble, ShotResult> OnShotProcessed;
     public Transform FirePoint => _firePoint;
     
     public void Constructor(IBubbleFactoryRandom bubbleFactory, ITrajectoryPredictor trajectoryPredictor, IBubbleGridStorage bubbleGridStorage, IStickyBubbleService stickyBubbleService)
     {
         _bubbleFactory = bubbleFactory;
         _trajectoryPredictor = trajectoryPredictor;
-        _bubbleStorage = bubbleGridStorage;
-        _stickyBubbleService = stickyBubbleService;
         
         Clear();
-        LoadInitialBubbles();
     }
-    
-    private void LoadInitialBubbles()
+
+    public void LoadInitialBubbles()
     {
         if (_bubbleFactory == null)
         {
@@ -65,48 +63,17 @@ public class BubbleLauncher : MonoBehaviour
         _currentBubble = null;
 
         ShotResult result = _trajectoryPredictor.Predict(_firePoint.position, direction, shotSpeed);
-        
-        StartCoroutine(AnimateShot(shotBubble, result));
+        OnShotProcessed?.Invoke(shotBubble, result);
     }
     
-    private IEnumerator AnimateShot(Bubble bubble, ShotResult result)
+    public void Reload()
     {
-        List<Vector2> path = result.trajectory;
-        if (path.Count < 2) yield break;
-
-        float speed = result.shotSpeed;
-        
-        for (int i = 1; i < path.Count; i++)
-        {
-            Vector2 start = path[i - 1];
-            Vector2 end = path[i];
-            float duration = result.duration / path.Count;
-            float elapsed = 0f;
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                float t = Mathf.Clamp01(elapsed / duration);
-                bubble.transform.position = Vector2.Lerp(start, end, t);
-                yield return null;
-            }
-            bubble.transform.position = end;
-        }
-
-        if (result.hit)
-        {
-            _stickyBubbleService.AttachToCell(bubble, result.targetCell);
-        }
-        else
-        {
-            Destroy(bubble.gameObject);
-        }
         StartCoroutine(ReloadCoroutine());
     }
 
     private IEnumerator ReloadCoroutine()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         ReplaceCurrentWithNext();
     }
     
