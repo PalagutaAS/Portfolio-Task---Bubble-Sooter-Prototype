@@ -36,7 +36,6 @@ public class GridPositions : IGridPositionService
 
         float verticalStep = cellSize - verticalOverlap;
 
-        // Вычисляем смещение X для центрирования верхнего ряда относительно родителя
         float upperRowMinX = cellSize / 2f;
         float upperRowMaxX = cellSize / 2f + (columns - 1) * cellSize;
         float shiftX = -(upperRowMinX + upperRowMaxX) / 2f;

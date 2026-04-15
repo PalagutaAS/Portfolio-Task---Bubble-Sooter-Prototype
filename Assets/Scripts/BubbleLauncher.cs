@@ -22,7 +22,7 @@ public class BubbleLauncher : MonoBehaviour
     public event Action<Bubble, ShotResult> OnShotProcessed;
     public Transform FirePoint => _firePoint;
     
-    public void Constructor(IBubbleFactoryRandom bubbleFactory, ITrajectoryPredictor trajectoryPredictor, IBubbleGridStorage bubbleGridStorage, IStickyBubbleService stickyBubbleService)
+    public void Constructor(IBubbleFactoryRandom bubbleFactory, ITrajectoryPredictor trajectoryPredictor)
     {
         _bubbleFactory = bubbleFactory;
         _trajectoryPredictor = trajectoryPredictor;

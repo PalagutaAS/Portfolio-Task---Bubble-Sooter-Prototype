@@ -34,7 +34,7 @@ public class FloatingBubbleRemover : IFloatingBubbleRemover
             }
         }
 
-        // Если в верхнем ряду нет пузырей (маловероятно), то удаляем всё
+        // Если в верхнем ряду нет пузырей, то удаляем всё
         if (rootIndices.Count == 0)
         {
             int totalCount = 0;

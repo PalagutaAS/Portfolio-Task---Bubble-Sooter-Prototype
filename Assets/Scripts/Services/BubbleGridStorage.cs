@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using DG.Tweening;
 using UnityEngine;
 
 public class BubbleGridStorage : IBubbleGridStorage
 {
     private readonly Dictionary<Vector2Int, Bubble> _positionToBubble = new ();
     private readonly Dictionary<Bubble, Vector2Int> _bubbleToIndexes = new ();
-    private IGridPositionService _gridPositions;
-    private IBubbleBoomAnimationService _boomAnimationsService;
+    private readonly IGridPositionService _gridPositions;
+    private readonly IBubbleBoomAnimationService _boomAnimationsService;
 
     public BubbleGridStorage(IGridPositionService gridPositions, IBubbleBoomAnimationService boomAnimationsService)
     {
@@ -18,7 +17,9 @@ public class BubbleGridStorage : IBubbleGridStorage
 
     public void AddBubble(Vector2Int indexesOnGrid, Bubble bubble)
     {
-        if (bubble == null) return;
+        if (bubble == null) 
+            return;
+        
         _positionToBubble[indexesOnGrid] = bubble;
         _bubbleToIndexes[bubble] = indexesOnGrid;
     }

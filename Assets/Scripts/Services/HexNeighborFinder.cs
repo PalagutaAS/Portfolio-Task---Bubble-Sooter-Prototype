@@ -32,7 +32,7 @@ public class HexNeighborFinder : IBubbleNeighborFinder
     }
 
     /// <summary>
-    /// Возвращает список индексов потенциальных соседей (без проверки существования ячейки).
+    /// Возвращает список индексов потенциальных соседей
     /// </summary>
     private List<Vector2Int> GetPotentialNeighborIndices(Vector2Int center)
     {
@@ -92,7 +92,7 @@ public class HexNeighborFinder : IBubbleNeighborFinder
         List<Vector2Int> existing = new List<Vector2Int>();
         foreach (var idx in potential)
         {
-            if (_storage.TryGetBubble(idx, out _)) // нам нужны только индексы, сам bubble не требуется
+            if (_storage.TryGetBubble(idx, out _))
                 existing.Add(idx);
         }
         return existing;
@@ -100,7 +100,7 @@ public class HexNeighborFinder : IBubbleNeighborFinder
 
     public bool IsConnectedToTopRow(Vector2Int startIndices)
     {
-        if (startIndices.x == 0) return true; // сам уже в верхнем ряду
+        if (startIndices.x == 0) return true;
 
         Queue<Vector2Int> queue = new Queue<Vector2Int>();
         HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
@@ -119,7 +119,7 @@ public class HexNeighborFinder : IBubbleNeighborFinder
             {
                 if (visited.Contains(neighbor)) continue;
 
-                if (neighbor.x == 0) return true; // достигли верхнего ряда
+                if (neighbor.x == 0) return true;
 
                 visited.Add(neighbor);
                 queue.Enqueue(neighbor);

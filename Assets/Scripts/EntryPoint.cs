@@ -29,7 +29,10 @@ public class EntryPoint : MonoBehaviour
     }
 
     private void CreateAssets()
-    {
+    {        
+        Bounds bounds = new Bounds(Vector3.zero, new Vector3(5, 10, 0));
+        bounds.min = new Vector3(bounds.min.x, bounds.min.y - 2, bounds.min.z);
+        
         _bubbleFlightAnimator = new BubbleFlightAnimator();
         _bubbleBoomAnimationService = new BubbleBoomAnimationService();
         _gridPositions = new GridPositions(_gridSettings, _gridTransform);
@@ -43,15 +46,13 @@ public class EntryPoint : MonoBehaviour
         _bubbleFactory = new BubbleFactory(_gridSettings.Prefab, _gridTransform);
         _collisionDetector = new CollisionDetector(_bubbleStorage, _trajectorySettings.radiusBubble);
         
-        Bounds bounds = new Bounds(Vector3.zero, new Vector3(5, 10, 0));
-        bounds.min = new Vector3(bounds.min.x, bounds.min.y - 2, bounds.min.z);
         _trajectoryPredictor = new TrajectoryPredictor(_bubbleStorage, _neighborFinder, _gridPositions, _trajectorySettings, _collisionDetector, bounds);
         _grid = new GridGenerator(_gridSettings, _bubbleFactory, _gridPositions, _bubbleStorage);
         _trajectoryRenderer.Initialize(_trajectoryPredictor, _trajectorySettings);
-        _launcher.Constructor(_bubbleFactory, _trajectoryPredictor, _bubbleStorage, _stickyBubbleService);
+        _launcher.Constructor(_bubbleFactory, _trajectoryPredictor);
         
-        BubbleDebugger bubbleDebugger = new GameObject("BUBBLE DEBUGGER").AddComponent<BubbleDebugger>();
-        bubbleDebugger.Constructor(_bubbleStorage, _neighborFinder, _matchFinder);
+        //BubbleDebugger bubbleDebugger = new GameObject("BUBBLE DEBUGGER").AddComponent<BubbleDebugger>();
+        //bubbleDebugger.Constructor(_bubbleStorage, _neighborFinder, _matchFinder);
     }
 
     private void Start()

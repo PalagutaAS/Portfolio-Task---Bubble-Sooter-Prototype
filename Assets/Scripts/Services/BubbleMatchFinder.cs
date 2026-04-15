@@ -14,13 +14,15 @@ public class BubbleMatchFinder : IBubbleMatchFinder
 
     public List<Bubble> FindMatchingBubbles(Bubble startBubble)
     {
-        if (startBubble == null) return new List<Bubble>();
+        if (startBubble == null) 
+            return new List<Bubble>();
         
         if (!_storage.TryGetIndices(startBubble, out Vector2Int startIdx))
             return new List<Bubble>();
 
         var matchingIndices = FindMatchingIndices(startIdx);
         var result = new List<Bubble>(matchingIndices.Count);
+        
         foreach (var idx in matchingIndices)
         {
             if (_storage.TryGetBubble(idx, out var bubble))
