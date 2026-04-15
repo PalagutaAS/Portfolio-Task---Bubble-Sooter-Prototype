@@ -15,7 +15,9 @@ public class BubbleShooter : MonoBehaviour
     private bool _isDragging;
     private Vector3 _firePointPos;
     private Vector3 _dragCurrentPos;
-
+    
+    private Vector2 _lastPreviewDirection;
+    private float _lastPreviewSpeed;
     private void Awake()
     {
         if (_bubbleLauncher == null)
@@ -49,7 +51,14 @@ public class BubbleShooter : MonoBehaviour
     private void UpdateTrajectoryPreview()
     {
         Vector3 direction = (_firePointPos - _dragCurrentPos).normalized;
-        _trajectoryRenderer.ShowTrajectory(direction, CalculateSpeed());
+        float speed = CalculateSpeed();
+        
+        if (direction == (Vector3)_lastPreviewDirection && speed == _lastPreviewSpeed)
+            return;
+        
+        _lastPreviewDirection = direction;
+        _lastPreviewSpeed = speed;
+        _trajectoryRenderer.ShowTrajectory(direction, speed);
     }
 
     private void StartDrag()
@@ -83,6 +92,8 @@ public class BubbleShooter : MonoBehaviour
         Vector3 direction = (_firePointPos - _dragCurrentPos).normalized;
         _bubbleLauncher.Shoot(direction, CalculateSpeed());
 
+        _lastPreviewDirection = Vector2.zero;
+        _lastPreviewSpeed = 0;
         _isDragging = false;
     }
 

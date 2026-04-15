@@ -2,6 +2,7 @@
 
 public class EntryPoint : MonoBehaviour
 {
+    [SerializeField] private CameraBoundsFitter _cameraBoundsFitter;
     [SerializeField] private GridSettings _gridSettings;
     [SerializeField] private Transform _gridTransform;
     [SerializeField] private GameLoop _gameLoop;
@@ -39,6 +40,7 @@ public class EntryPoint : MonoBehaviour
     {        
         Bounds bounds = new Bounds(Vector3.zero, new Vector3(5, 10, 0));
         bounds.min = new Vector3(bounds.min.x, bounds.min.y - 2, bounds.min.z);
+        _cameraBoundsFitter.Constructor(bounds);
         
         _score = new Score();
         _scoreService = new ScoreService(_score);

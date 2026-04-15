@@ -45,9 +45,9 @@ public class GridVisualizer : MonoBehaviour
 
     private void DrawGrid()
     {
-        if (gridPositions == null || settingsChanged())
+        if (gridPositions == null || SettingsChanged())
         {
-            gridPositions = new GridPositions(settings, this.transform);
+            gridPositions = new GridPositions(settings, transform);
         }
 
         int rows = settings.rows;
@@ -80,13 +80,6 @@ public class GridVisualizer : MonoBehaviour
             DrawRowNumbers(rows);
         }
     }
-    
-    private void DrawWireCube(Vector3 center, Vector3 size)
-    {
-        // Рисуем линии вручную, чтобы можно было управлять толщиной (для обычного Gizmos толщина не меняется)
-        // Для простоты используем стандартный Gizmos.DrawWireCube, он тонкий, но заметный.
-        Gizmos.DrawWireCube(center, size);
-    }
 
     private void DrawRowNumbers(int rows)
     {
@@ -99,14 +92,17 @@ public class GridVisualizer : MonoBehaviour
         {
             Vector3 worldPos = gridPositions.GetPosition(row, 0);
             Vector3 labelPos = worldPos + new Vector3(-settings.cellSize * 0.9f, 0, 0);
+#if UNITY_EDITOR
             Handles.Label(labelPos, row.ToString(), style);
+#else
+            return;
+#endif
+            
         }
     }
 
-    private bool settingsChanged()
+    private bool SettingsChanged()
     {
-        // Простая проверка: если сетка не создана или изменились параметры, пересоздаём.
-        // Более точный вариант – кешировать последние параметры и сравнивать.
         return gridPositions == null;
     }
 
