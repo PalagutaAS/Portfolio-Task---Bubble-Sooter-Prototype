@@ -3,7 +3,6 @@ using UnityEngine.SceneManagement;
 
 public class LoadSceneOnClick : MonoBehaviour
 {
-
     public void LoadScene(string sceneName)
     {
         if (string.IsNullOrEmpty(sceneName))

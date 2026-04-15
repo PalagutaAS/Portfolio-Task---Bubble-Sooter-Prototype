@@ -4,6 +4,8 @@ public class EntryPoint : MonoBehaviour
 {
     [SerializeField] private GridSettings _gridSettings;
     [SerializeField] private Transform _gridTransform;
+    [SerializeField] private GameLoop _gameLoop;
+    [SerializeField] private GameOverUI _gameOverUI;
     [SerializeField] private BubbleLauncher _launcher;
     [SerializeField] private TrajectoryRenderer _trajectoryRenderer;
     [SerializeField] private TrajectorySettings _trajectorySettings;
@@ -57,8 +59,7 @@ public class EntryPoint : MonoBehaviour
 
     private void Start()
     {
-        GameLoop gameLoop = new GameObject("GAME LOOP").AddComponent<GameLoop>();
-        gameLoop.Constructor(_bubbleStorage, _neighborFinder, _matchFinder, _stickyBubbleService, _bubbleFlightAnimator, _grid, _launcher);
+        _gameLoop.Constructor(_stickyBubbleService, _bubbleFlightAnimator, _grid, _gameOverUI, _launcher);
     }
 
     [ContextMenu("RegenerateGrid")]

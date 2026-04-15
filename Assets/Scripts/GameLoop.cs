@@ -11,36 +11,27 @@ public class GameLoop : MonoBehaviour
     }
     
     private GridGenerator _gridGenerator;
-    //private GameUI _gameUI;
+    private GameOverUI _gameOverUI;
     private BubbleLauncher _bubbleLauncher;
-    private IBubbleGridStorage _bubbleStorage;
     private GameState _currentState;
     private IStickyBubbleService _stickyBubbleService;
     private IBubbleFlightAnimator _flightAnimator;
-
-    private void Awake()
-    {
-        Debug.Log("Awake");
-        
-    }
     
     public void Constructor(
-        IBubbleGridStorage bubbleStorage,
-        IBubbleNeighborFinder neighborFinder,
-        IBubbleMatchFinder matchFinder,
         IStickyBubbleService stickyBubbleService,
         IBubbleFlightAnimator flightAnimator,
         GridGenerator gridGenerator,
+        GameOverUI gameOverUI,
         BubbleLauncher launcher)
     {
-        _bubbleStorage = bubbleStorage;
         _gridGenerator = gridGenerator;
         _bubbleLauncher = launcher;
         _stickyBubbleService = stickyBubbleService;
         _flightAnimator = flightAnimator;
-        //_gameUI = gameUI;
+        _gameOverUI = gameOverUI;
         
         _bubbleLauncher.OnShotProcessed += HandleShotProcessed;
+        gameObject.SetActive(true);
     }
 
     private void HandleShotProcessed(Bubble shotBubble, ShotResult shotResult)
@@ -56,7 +47,7 @@ public class GameLoop : MonoBehaviour
         StartNewGame();
     }
     
-    private void StartNewGame()
+    public void StartNewGame()
     {
         _currentState = GameState.Playing;
         
@@ -64,7 +55,7 @@ public class GameLoop : MonoBehaviour
         _bubbleLauncher.Clear();
         _bubbleLauncher.LoadInitialBubbles();
         
-        //_gameUI.HideGameOver();
+        _gameOverUI.HideGameOver();
     }
     
     private IEnumerator ProcessShotCoroutine(Bubble shotBubble, ShotResult result)
@@ -78,7 +69,7 @@ public class GameLoop : MonoBehaviour
 
         if (_bubbleLauncher.ShotsRemaining == 0)
         {
-            GameOverState();
+            Invoke(nameof(GameOverState),0.5f);
             yield break;
         }
         
@@ -93,6 +84,6 @@ public class GameLoop : MonoBehaviour
         
         Debug.Log("GAME OVER");
         _currentState = GameState.GameOver;
-        //_gameUI.ShowGameOver();
+        _gameOverUI.ShowGameOver();
     }
 }
