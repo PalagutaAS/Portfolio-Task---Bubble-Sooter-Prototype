@@ -36,7 +36,7 @@ public class GridGenerator
                 Vector2 pos = _gridPositions.GetPosition(row, col);
                 if (pos != Vector2.zero)
                 {
-                    if (row < 5)
+                    if (row < 12)
                     {
                         Bubble bubble = _bubbleFactory.CreateBubble(pos);
                         Vector2Int indexes = new Vector2Int(row, col);

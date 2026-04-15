@@ -60,9 +60,6 @@ public class EntryPoint : MonoBehaviour
         _trajectoryRenderer.Initialize(_trajectoryPredictor, _trajectorySettings);
         _launcher.Constructor(_bubbleFactory, _trajectoryPredictor);
         _scoreUI.Constructor(_score);
-        
-        //BubbleDebugger bubbleDebugger = new GameObject("BUBBLE DEBUGGER").AddComponent<BubbleDebugger>();
-        //bubbleDebugger.Constructor(_bubbleStorage, _neighborFinder, _matchFinder);
     }
 
     private void Start()

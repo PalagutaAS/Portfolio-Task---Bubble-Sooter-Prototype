@@ -309,7 +309,7 @@ MonoBehaviour:
   _trajectorySettings: {fileID: 11400000, guid: 69116d3ab82023e4ba9fca5e328dfde7, type: 2}
   _bubbleAnimationSettings: {fileID: 11400000, guid: 00723856cbe32ab43a1b0c0ace87b838, type: 2}
   _gameOverUI: {fileID: 1860786173}
-  _scoreUI: {fileID: 0}
+  _scoreUI: {fileID: 465268887}
 --- !u!1 &283150890
 GameObject:
   m_ObjectHideFlags: 0
