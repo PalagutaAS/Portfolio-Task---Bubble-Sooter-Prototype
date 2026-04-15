@@ -16,7 +16,8 @@ public class GameLoop : MonoBehaviour
     private GameState _currentState;
     private IStickyBubbleService _stickyBubbleService;
     private IBubbleFlightAnimator _flightAnimator;
-    
+    private bool _gameOverPending;
+
     public void Constructor(
         IStickyBubbleService stickyBubbleService,
         IBubbleFlightAnimator flightAnimator,
@@ -37,7 +38,7 @@ public class GameLoop : MonoBehaviour
 
     private void HandleShotsEmpty()
     {
-        _currentState = GameState.GameOver;
+        _gameOverPending = true;
     }
 
     private void HandleShotProcessed(Bubble shotBubble, ShotResult shotResult)
@@ -56,6 +57,8 @@ public class GameLoop : MonoBehaviour
     public void StartNewGame()
     {
         StopAllCoroutines();
+        _gameOverPending = false;
+        
         _currentState = GameState.Playing;
         
         _gridGenerator.GenerateRandomBubbles();
@@ -74,7 +77,7 @@ public class GameLoop : MonoBehaviour
         else
             Destroy(shotBubble.gameObject);
 
-        if (_currentState == GameState.GameOver)
+        if (_gameOverPending)
         {
             Invoke(nameof(GameOverState),0.5f);
             yield break;
@@ -86,6 +89,9 @@ public class GameLoop : MonoBehaviour
 
     private void GameOverState()
     {
+        if (_currentState != GameState.ProcessingShot)
+            return;
+        
         _currentState = GameState.GameOver;
         _gameOverUI.ShowGameOver();
     }
