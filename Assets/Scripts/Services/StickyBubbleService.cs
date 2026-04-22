@@ -42,7 +42,7 @@ public class StickyBubbleService : IStickyBubbleService
             }
             
             int floatingRemoved = _floatingRemover.RemoveFloatingBubbles();
-            _scoreService.BubblePopped(countMatch, floatingRemoved);
+            _scoreService.CalculateScore(countMatch, floatingRemoved);
             
             // Запускаем проверку на соприкосновение с потолком,
             // но не знаю как именно это сделать/реализовать, знаю что нужен отдельный сервис на это

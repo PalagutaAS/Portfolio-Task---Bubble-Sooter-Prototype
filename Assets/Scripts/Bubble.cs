@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using static UnityEngine.Color;
 
 public class Bubble : MonoBehaviour
 {
@@ -11,22 +10,12 @@ public class Bubble : MonoBehaviour
     private void Awake()
     {
         IsDestroying = false;
-        if (_sprite == null)
-            return;
+        _sprite ??= GetComponent<SpriteRenderer>();
     }
 
-    public void SetColor(BubbleColor color)
+    public void Constructor(ColorData colorData)
     {
-        Color newColor = color switch
-        {
-            BubbleColor.Green => green,
-            BubbleColor.Blue => blue,
-            BubbleColor.Yellow => yellow,
-            BubbleColor.Red => red,
-            BubbleColor.Purple => new Color(0.5f, 0, 0.5f),
-            _ => white
-        };
-        Color = color;
-        _sprite.color = newColor;
+        Color = colorData.ColorName;
+        _sprite.color = colorData.ColorValue;
     }
 }

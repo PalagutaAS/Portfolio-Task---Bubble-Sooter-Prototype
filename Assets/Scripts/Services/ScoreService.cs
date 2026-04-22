@@ -1,23 +1,28 @@
 ﻿public interface IScoreService
 {
-    void BubblePopped(int matchCount, int floatingCount = 0);
+    void CalculateScore(int matchCount, int floatingCount = 0);
 }
 
 public class ScoreService : IScoreService
 {
     private readonly IScore _score;
-    private readonly int _scoreByPop;
+    private readonly BubbleDataSettings _bubbleSettings;
 
-    public ScoreService(IScore score)
+
+    public ScoreService(IScore score, BubbleDataSettings bubbleSettings)
     {
         _score = score;
-        _scoreByPop = 10;
+        _bubbleSettings = bubbleSettings;
     }
 
-    public void BubblePopped(int matchCount, int floatingCount = 0)
+    public void CalculateScore(int matchCount, int floatingCount = 0)
     {
-        int scoreByBubble = _scoreByPop + (matchCount - 3) * 2;
-        int totalAddScore = scoreByBubble * matchCount + _scoreByPop * floatingCount;
+        int scoreByPop = _bubbleSettings.ScoreByPop;
+        float rate = _bubbleSettings.Rate;
+
+        int scoreByBubble = scoreByPop + (int) (scoreByPop * (matchCount - 3) * rate);
+        int totalAddScore = scoreByBubble * matchCount + scoreByPop * floatingCount;
+        
         _score.AddScore(totalAddScore);
     }
 }

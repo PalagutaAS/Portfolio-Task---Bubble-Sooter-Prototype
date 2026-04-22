@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GridGenerator
 {
@@ -49,8 +48,6 @@ public class GridGenerator
                 }
             }
         }
-
-        Debug.Log($"Сгенерировано {_storage.GetAllBubbles().Count()} ячеек.");
     }
 
     private void GenerateFromLevelData()

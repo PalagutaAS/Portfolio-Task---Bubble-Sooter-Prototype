@@ -3,13 +3,15 @@
 public class EntryPoint : MonoBehaviour
 {
     [SerializeField] private CameraBoundsFitter _cameraBoundsFitter;
-    [SerializeField] private GridSettings _gridSettings;
     [SerializeField] private Transform _gridTransform;
     [SerializeField] private GameLoop _gameLoop;
     [SerializeField] private BubbleLauncher _launcher;
     [SerializeField] private TrajectoryRenderer _trajectoryRenderer;
+    [Space, Header("Settings")]
+    [SerializeField] private GridSettings _gridSettings;
     [SerializeField] private TrajectorySettings _trajectorySettings;
     [SerializeField] private BubbleAnimationSettings _bubbleAnimationSettings;
+    [SerializeField] private BubbleDataSettings _bubbleDataSettings;
     [Space, Header("UI")]
     [SerializeField] private GameOverUI _gameOverUI;
     [SerializeField] private ScoreCounterUI _scoreUI;
@@ -43,7 +45,7 @@ public class EntryPoint : MonoBehaviour
         _cameraBoundsFitter.Constructor(bounds);
         
         _score = new Score();
-        _scoreService = new ScoreService(_score);
+        _scoreService = new ScoreService(_score, _bubbleDataSettings);
         _bubbleFlightAnimator = new BubbleFlightAnimator();
         _bubbleBoomAnimationService = new BubbleBoomAnimationService();
         _gridPositions = new GridPositions(_gridSettings, _gridTransform);
@@ -54,7 +56,7 @@ public class EntryPoint : MonoBehaviour
         _bubbleWaveAnimationService =
             new BubbleWaveAnimationService(_neighborFinder, _gridPositions, _bubbleStorage, _bubbleAnimationSettings);
         _stickyBubbleService = new StickyBubbleService(_matchFinder, _bubbleStorage, _floatingBubbleRemover, _bubbleWaveAnimationService, _scoreService);
-        _bubbleFactory = new BubbleFactory(_gridSettings.Prefab, _gridTransform);
+        _bubbleFactory = new BubbleFactory(_gridSettings.Prefab, _gridTransform, _bubbleDataSettings);
         _collisionDetector = new CollisionDetector(_bubbleStorage, _trajectorySettings.radiusBubble);
         
         _trajectoryPredictor = new TrajectoryPredictor(_bubbleStorage, _neighborFinder, _gridPositions, _trajectorySettings, _collisionDetector, bounds);

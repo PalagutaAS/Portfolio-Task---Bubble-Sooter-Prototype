@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcc22965cb65483a878a59738affd5c4, type: 3}
+  m_Name: BubbleColorData
+  m_EditorClassIdentifier: 
+  _colors:
+  - ColorName: 0
+    ColorValue: {r: 0, g: 0.7735849, b: 0.0027658173, a: 1}
+  - ColorName: 1
+    ColorValue: {r: 0, g: 0.48065767, b: 0.8584906, a: 1}
+  - ColorName: 2
+    ColorValue: {r: 1, g: 0.824807, b: 0, a: 1}
+  - ColorName: 3
+    ColorValue: {r: 0.8396226, g: 0.07524917, b: 0.07524917, a: 1}
+  - ColorName: 4
+    ColorValue: {r: 0.5377358, g: 0.11921501, b: 0.52870303, a: 1}
+  _scoreByPop: 10
+  _rate: 0.2

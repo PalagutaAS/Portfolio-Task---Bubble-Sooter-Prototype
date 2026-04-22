@@ -6,32 +6,33 @@ public interface IBubbleFactoryRandom
 }
 public interface IBubbleFactory
 {
-    Bubble CreateBubble(Vector2 position, BubbleColor color);
+    Bubble CreateBubble(Vector2 position, BubbleColor colorType);
 }
 
 public class BubbleFactory : IBubbleFactoryRandom, IBubbleFactory
 {
     private readonly Bubble _prefabBubble;
     private readonly Transform _parentForBubbles;
+    private readonly BubbleDataSettings _dataSettings;
 
-    public BubbleFactory(Bubble prefabBubble, Transform parentForBubbles)
+    public BubbleFactory(Bubble prefabBubble, Transform parentForBubbles, BubbleDataSettings dataSettings)
     {
         _prefabBubble = prefabBubble;
         _parentForBubbles = parentForBubbles;
+        _dataSettings = dataSettings;
     }
 
     /// <summary>
     /// Создаёт пузырь указанного цвета в заданной позиции и родителе.
     /// </summary>
     /// <param name="position">World позиция.</param>
-    /// <param name="color">Цвет пузыря.</param>
+    /// <param name="colorType">Цвет пузыря.</param>
     /// <returns>Компонент Bubble созданного объекта.</returns>
-    public Bubble CreateBubble(Vector2 position, BubbleColor color)
+    public Bubble CreateBubble(Vector2 position, BubbleColor colorType)
     {
         Bubble bubble = Object.Instantiate(_prefabBubble, _parentForBubbles);
         bubble.transform.position = position;
-
-        bubble.SetColor(color);
+        bubble.Constructor(_dataSettings.GetData(colorType));
         return bubble;
     }
     
@@ -46,8 +47,8 @@ public class BubbleFactory : IBubbleFactoryRandom, IBubbleFactory
         
         Bubble bubble = Object.Instantiate(_prefabBubble, _parentForBubbles);
         bubble.transform.position = position;
-
-        bubble.SetColor(colors[Random.Range(0, colors.Length)]);
+        var colorData = _dataSettings.GetData(colors[Random.Range(0, colors.Length)]);
+        bubble.Constructor(colorData);
         return bubble;
     }
 }
