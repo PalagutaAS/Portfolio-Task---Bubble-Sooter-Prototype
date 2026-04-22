@@ -114,4 +114,12 @@ public class BubbleLauncher : MonoBehaviour
         _currentBubble = null;
         ShotsRemaining = _maxShots;
     }
+
+    public void ResetCurrentBubblePosition()
+    {
+        if (CurrentBubble == null)
+            return;
+        
+        CurrentBubble.transform.position = FirePoint.position;
+    }
 }

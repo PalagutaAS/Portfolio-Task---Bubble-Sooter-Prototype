@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using ScriptableObjects;
+using UnityEngine;
 
 public class EntryPoint : MonoBehaviour
 {
@@ -7,11 +8,14 @@ public class EntryPoint : MonoBehaviour
     [SerializeField] private GameLoop _gameLoop;
     [SerializeField] private BubbleLauncher _launcher;
     [SerializeField] private TrajectoryRenderer _trajectoryRenderer;
+    [SerializeField] private BubbleShooter _bubbleShooter;
     [Space, Header("Settings")]
     [SerializeField] private GridSettings _gridSettings;
     [SerializeField] private TrajectorySettings _trajectorySettings;
+    [SerializeField] private PhysicalSimulateSettings _physicalSimulateSettings;
     [SerializeField] private BubbleAnimationSettings _bubbleAnimationSettings;
     [SerializeField] private BubbleDataSettings _bubbleDataSettings;
+    [SerializeField] private BubbleShooterSettings _bubbleShooterSettings;
     [Space, Header("UI")]
     [SerializeField] private GameOverUI _gameOverUI;
     [SerializeField] private ScoreCounterUI _scoreUI;
@@ -57,13 +61,14 @@ public class EntryPoint : MonoBehaviour
             new BubbleWaveAnimationService(_neighborFinder, _gridPositions, _bubbleStorage, _bubbleAnimationSettings);
         _stickyBubbleService = new StickyBubbleService(_matchFinder, _bubbleStorage, _floatingBubbleRemover, _bubbleWaveAnimationService, _scoreService);
         _bubbleFactory = new BubbleFactory(_gridSettings.Prefab, _gridTransform, _bubbleDataSettings);
-        _collisionDetector = new CollisionDetector(_bubbleStorage, _trajectorySettings.radiusBubble);
+        _collisionDetector = new CollisionDetector(_bubbleStorage, _physicalSimulateSettings.radiusBubble);
         
-        _trajectoryPredictor = new TrajectoryPredictor(_bubbleStorage, _neighborFinder, _gridPositions, _trajectorySettings, _collisionDetector, bounds);
+        _trajectoryPredictor = new TrajectoryPredictor(_bubbleStorage, _neighborFinder, _gridPositions, _physicalSimulateSettings, _collisionDetector, bounds);
         _grid = new GridGenerator(_gridSettings, _bubbleFactory, _gridPositions, _bubbleStorage);
         _trajectoryRenderer.Initialize(_trajectoryPredictor, _trajectorySettings);
         _launcher.Constructor(_bubbleFactory, _trajectoryPredictor);
         _scoreUI.Constructor(_score);
+        _bubbleShooter.Constructor(_bubbleShooterSettings);
     }
 
     private void Start()

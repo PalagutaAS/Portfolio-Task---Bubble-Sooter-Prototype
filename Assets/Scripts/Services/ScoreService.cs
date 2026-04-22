@@ -1,4 +1,6 @@
-﻿public interface IScoreService
+﻿using ScriptableObjects;
+
+public interface IScoreService
 {
     void CalculateScore(int matchCount, int floatingCount = 0);
 }

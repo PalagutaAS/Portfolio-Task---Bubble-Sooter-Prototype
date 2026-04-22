@@ -1,31 +1,27 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using ScriptableObjects;
 
 public class TrajectoryRenderer : MonoBehaviour
 {
     [SerializeField] private GameObject _dotPrefab;
     [SerializeField] private Transform _firePoint;
-    [SerializeField] private int _maxPoints = 50;
-    [SerializeField, Range(1, 3)] private int _step = 1;
-    [SerializeField] private float _minDistanceBetweenDots = 0.4f;
-    [SerializeField] private float _scaleLastDot = 0.4f;
 
     private ITrajectoryPredictor _predictor;
-    private TrajectorySettings _settings;
+    private TrajectorySettings _trajectorySettings;
     private bool _isActive = true;
 
     private List<GameObject> _activeDots = new List<GameObject>();
     private Queue<GameObject> _dotPool = new Queue<GameObject>();
     private GameObject _lastDot;
     private Vector2 _lastPoint;
-
-
+    
     public void Initialize(ITrajectoryPredictor predictor, TrajectorySettings trajectorySettings)
     {
         _predictor = predictor;
-        _settings = trajectorySettings;
+        _trajectorySettings = trajectorySettings;
 
-        for (int i = 0; i < _maxPoints; i++)
+        for (int i = 0; i < _trajectorySettings.maxPoints; i++)
         {
             var dot = Instantiate(_dotPrefab, transform);
             dot.SetActive(false);
@@ -33,7 +29,7 @@ public class TrajectoryRenderer : MonoBehaviour
         }
         
         _lastDot = Instantiate(_dotPrefab, transform);
-        _lastDot.transform.localScale = Vector3.one * _scaleLastDot;
+        _lastDot.transform.localScale = Vector3.one * _trajectorySettings.scaleLastDot;
         _lastDot.SetActive(false);
     }
 
@@ -58,9 +54,9 @@ public class TrajectoryRenderer : MonoBehaviour
             Vector2 p0 = points[i];
             Vector2 p1 = points[i + 1];
             
-            for (int j = 0; j < _step; j++)
+            for (int j = 0; j < _trajectorySettings.step; j++)
             {
-                float t = j / (float)_step;
+                float t = j / (float)_trajectorySettings.step;
                 Vector2 interpolated = Vector2.Lerp(p0, p1, t);
                 TryAddDot(interpolated);
             }
@@ -72,7 +68,7 @@ public class TrajectoryRenderer : MonoBehaviour
     
     private void TryAddDot(Vector2 position)
     {
-        if (Vector2.Distance(position, _lastPoint) < _minDistanceBetweenDots)
+        if (Vector2.Distance(position, _lastPoint) < _trajectorySettings.minDistanceBetweenDots)
             return;
         
         GameObject dot = GetDotFromPool();
@@ -81,7 +77,7 @@ public class TrajectoryRenderer : MonoBehaviour
         _activeDots.Add(dot);
     }
 
-    private GameObject GetDotFromPool() => (_dotPool.Count > 0) ? _dotPool.Dequeue() :  Instantiate(_dotPrefab, transform);
+    private GameObject GetDotFromPool() => (_dotPool.Count > 0) ? _dotPool.Dequeue() : Instantiate(_dotPrefab, transform);
     
     public void HideTrajectory()
     {

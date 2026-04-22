@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using DG.Tweening;
+using ScriptableObjects;
 using UnityEngine;
 
 public interface IBubbleWaveAnimationService

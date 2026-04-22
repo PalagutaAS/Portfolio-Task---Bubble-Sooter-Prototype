@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using ScriptableObjects;
+using UnityEngine;
+using UnityEngine.PlayerLoop;
 
 public class BubbleShooter : MonoBehaviour
 {
@@ -7,11 +9,8 @@ public class BubbleShooter : MonoBehaviour
     [SerializeField] private TrajectoryRenderer _trajectoryRenderer;
     [SerializeField] private Camera _mainCamera;
 
-    [Header("Настройки натягивания")]
-    [SerializeField] private float _maxDragRadius = 3f;
-    [SerializeField] private float _minSpeed = 5f;
-    [SerializeField] private float _maxSpeed = 20f;
-
+    [SerializeField] private BubbleShooterSettings _shooterSettings;
+    
     private bool _isDragging;
     private Vector3 _firePointPos;
     private Vector3 _dragCurrentPos;
@@ -20,15 +19,15 @@ public class BubbleShooter : MonoBehaviour
     private float _lastPreviewSpeed;
     private int _frameSkipCounter;
     private const int FRAMES_TO_SKIP = 3;
-    private void Awake()
-    {
-        if (_bubbleLauncher == null)
-            _bubbleLauncher = GetComponent<BubbleLauncher>();
-        
-        if (_mainCamera == null)
-            _mainCamera = Camera.main;
-    }
 
+    public void Constructor(BubbleShooterSettings shooterSettings)
+    {
+        _shooterSettings = shooterSettings;
+        _bubbleLauncher ??= GetComponent<BubbleLauncher>();
+        _mainCamera ??= Camera.main;
+        _firePointPos = _bubbleLauncher.FirePoint.position;
+    }
+    
     private void Update()
     {
         if (!_bubbleLauncher.CurrentBubble) 
@@ -46,8 +45,22 @@ public class BubbleShooter : MonoBehaviour
         else if (Input.GetMouseButtonUp(0) && _isDragging)
         {
             ShootFromDrag();
-            _trajectoryRenderer.HideTrajectory();
+            Reset();
         }
+        
+        if (Input.GetMouseButtonDown(1) && _isDragging)
+        {
+            Reset();
+        }
+    }
+
+    private void Reset()
+    {
+        _trajectoryRenderer.HideTrajectory();
+        _lastPreviewDirection = Vector2.zero;
+        _lastPreviewSpeed = 0;
+        _isDragging = false;
+        _bubbleLauncher.ResetCurrentBubblePosition();
     }
 
     private void UpdateTrajectoryPreview()
@@ -71,7 +84,6 @@ public class BubbleShooter : MonoBehaviour
     private void StartDrag()
     {
         _isDragging = true;
-        _firePointPos = _bubbleLauncher.FirePoint.position;
         _bubbleLauncher.CurrentBubble.transform.position = _firePointPos;
         UpdateDrag();
     }
@@ -83,9 +95,9 @@ public class BubbleShooter : MonoBehaviour
         Vector3 directionToMouse = mouseWorldPos - _firePointPos;
         float distance = directionToMouse.magnitude;
 
-        if (distance > _maxDragRadius)
+        if (distance > _shooterSettings.maxDragRadius)
         {
-            directionToMouse = directionToMouse.normalized * _maxDragRadius;
+            directionToMouse = directionToMouse.normalized * _shooterSettings.maxDragRadius;
         }
 
         _dragCurrentPos = _firePointPos + directionToMouse;
@@ -98,18 +110,14 @@ public class BubbleShooter : MonoBehaviour
     {
         Vector3 direction = (_firePointPos - _dragCurrentPos).normalized;
         _bubbleLauncher.Shoot(direction, CalculateSpeed());
-
-        _lastPreviewDirection = Vector2.zero;
-        _lastPreviewSpeed = 0;
-        _isDragging = false;
     }
 
     private float CalculateSpeed()
     {
         float dragDistance = (_dragCurrentPos - _firePointPos).magnitude;
     
-        float t = Mathf.Clamp01(dragDistance / _maxDragRadius);
-        return Mathf.Lerp(_minSpeed, _maxSpeed, t);
+        float t = Mathf.Clamp01(dragDistance / _shooterSettings.maxDragRadius);
+        return Mathf.Lerp(_shooterSettings.minSpeed, _shooterSettings.maxSpeed, t);
     }
 
 

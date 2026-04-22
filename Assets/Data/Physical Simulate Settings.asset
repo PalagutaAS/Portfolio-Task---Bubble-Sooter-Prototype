@@ -9,10 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 759e4181354f44de84187425c5a45d71, type: 3}
-  m_Name: Trajectory Settings
+  m_Script: {fileID: 11500000, guid: f66bcdd6df4940c08248229f29d6fa6f, type: 3}
+  m_Name: Physical Simulate Settings
   m_EditorClassIdentifier: 
-  maxPoints: 50
-  step: 1
-  minDistanceBetweenDots: 0.4
-  scaleLastDot: 0.4
+  predictDeltaTime: 0.04
+  radiusBubble: 0.2
+  gravity: 20

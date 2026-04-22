@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using ScriptableObjects;
+using UnityEngine;
 
 public interface IBubbleFactoryRandom
 {

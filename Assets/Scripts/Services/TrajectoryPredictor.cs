@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ScriptableObjects;
 using UnityEngine;
 
 public interface ITrajectoryPredictor
@@ -59,20 +60,20 @@ public class TrajectoryPredictor : ITrajectoryPredictor
     private readonly Bounds _fieldBounds;
     private readonly IGridPositionService _gridPositions;
     private readonly ICollisionDetector _collisionDetector;
-    private readonly TrajectorySettings _settings;
+    private readonly PhysicalSimulateSettings _settings;
 
     public TrajectoryPredictor(
         IBubbleGridStorage storage,
         IBubbleNeighborFinder neighborFinder,
         IGridPositionService gridPositions,
-        TrajectorySettings trajectorySettings,
+        PhysicalSimulateSettings physicalSimulateSettings,
         ICollisionDetector collisionDetector,
         Bounds fieldBounds)
     {
         _gridPositions = gridPositions;
         _storage = storage;
         _neighborFinder = neighborFinder;
-        _settings = trajectorySettings;
+        _settings = physicalSimulateSettings;
         _fieldBounds = fieldBounds;
         _collisionDetector = collisionDetector;
     }
@@ -92,21 +93,21 @@ public class TrajectoryPredictor : ITrajectoryPredictor
             Vector2 newPosition = position + velocity * dt;
 
             // 1. Проверка столкновения с пузырём
-            if (TryHandleBubbleCollision(position, newPosition, velocity, radius,
+            if (TryHandleBubbleCollision(position, newPosition, velocity,
                                          ref elapsedTime, ref trajectory, out ShotResult? bubbleResult))
             {
                 return bubbleResult.Value;
             }
 
             // 2. Проверка вылета за нижнюю границу
-            if (TryHandleBottomExit(position, newPosition, velocity, radius,
+            if (TryHandleBottomExit(position, newPosition, velocity,
                                     ref elapsedTime, ref trajectory, out ShotResult? bottomResult))
             {
                 return bottomResult.Value;
             }
 
             // 3. Проверка отскока от стен (левая, правая, верхняя)
-            if (TryHandleWallBounce(position, newPosition, radius, ref velocity, ref trajectory))
+            if (TryHandleWallBounce(position, newPosition, ref velocity, ref trajectory))
             {
                 position = trajectory[^1];
                 elapsedTime += dt;
@@ -131,7 +132,6 @@ public class TrajectoryPredictor : ITrajectoryPredictor
         Vector2 oldPos,
         Vector2 newPos,
         Vector2 velocity,
-        float radius,
         ref float elapsedTime,
         ref List<Vector2> trajectory,
         out ShotResult? result)
@@ -170,18 +170,17 @@ public class TrajectoryPredictor : ITrajectoryPredictor
         Vector2 oldPos,
         Vector2 newPos,
         Vector2 velocity,
-        float radius,
         ref float elapsedTime,
         ref List<Vector2> trajectory,
         out ShotResult? result)
     {
         result = null;
-
+        float radius = _settings.radiusBubble;
+        
         float bottomBoundary = _fieldBounds.min.y + radius;
         if (newPos.y > bottomBoundary)
             return false;
 
-        // Точное время пересечения нижней границы
         float t = (bottomBoundary - oldPos.y) / velocity.y;
         Vector2 exitPoint = oldPos + velocity * t;
 
@@ -198,13 +197,13 @@ public class TrajectoryPredictor : ITrajectoryPredictor
     private bool TryHandleWallBounce(
         Vector2 oldPos,
         Vector2 newPos,
-        float radius,
         ref Vector2 velocity,
         ref List<Vector2> trajectory)
     {
         bool bounced = false;
         Vector2 bouncePoint = Vector2.zero;
-
+        float radius = _settings.radiusBubble;
+        
         // Левая стена
         if (newPos.x - radius <= _fieldBounds.min.x)
         {

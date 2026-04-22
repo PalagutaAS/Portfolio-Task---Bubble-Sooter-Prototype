@@ -306,10 +306,13 @@ MonoBehaviour:
   _gameLoop: {fileID: 615458958}
   _launcher: {fileID: 1132939789}
   _trajectoryRenderer: {fileID: 1132939791}
+  _bubbleShooter: {fileID: 1132939790}
   _gridSettings: {fileID: 11400000, guid: ff7d8c71cd7106f488dee3606ba97d7d, type: 2}
-  _trajectorySettings: {fileID: 11400000, guid: 69116d3ab82023e4ba9fca5e328dfde7, type: 2}
+  _trajectorySettings: {fileID: 11400000, guid: a2bcb058a8069494893947e41160c710, type: 2}
+  _physicalSimulateSettings: {fileID: 11400000, guid: 69116d3ab82023e4ba9fca5e328dfde7, type: 2}
   _bubbleAnimationSettings: {fileID: 11400000, guid: 00723856cbe32ab43a1b0c0ace87b838, type: 2}
   _bubbleDataSettings: {fileID: 11400000, guid: 6fec28cca7260f141a35082cd4fa565e, type: 2}
+  _bubbleShooterSettings: {fileID: 11400000, guid: 0c2b612c13dee8246a68240052a27496, type: 2}
   _gameOverUI: {fileID: 1860786173}
   _scoreUI: {fileID: 465268887}
 --- !u!1 &283150890
@@ -1072,9 +1075,7 @@ MonoBehaviour:
   _bubbleLauncher: {fileID: 1132939789}
   _trajectoryRenderer: {fileID: 1132939791}
   _mainCamera: {fileID: 519420031}
-  _maxDragRadius: 1
-  _minSpeed: 5
-  _maxSpeed: 30
+  _shooterSettings: {fileID: 0}
 --- !u!114 &1132939791
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1089,10 +1090,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _dotPrefab: {fileID: 8730400209216376229, guid: 16fc6b00055f2464482771f060a04633, type: 3}
   _firePoint: {fileID: 994116858}
-  _maxPoints: 50
-  _step: 1
-  _minDistanceBetweenDots: 0.3
-  _scaleLastDot: 0.4
 --- !u!1 &1222623987
 GameObject:
   m_ObjectHideFlags: 0
@@ -1652,7 +1649,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1860786169
 MonoBehaviour:
   m_ObjectHideFlags: 0
